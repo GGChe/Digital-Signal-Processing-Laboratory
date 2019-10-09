@@ -1,5 +1,5 @@
 #   Code for the Assignment 1 of Digital Signal Processing
-#   Authors: Gabriel Galeote-Checa & Anton
+#   Authors: Gabriel Galeote-Checa & Anton Saikia
 
 
 import matplotlib.pylab as plt
