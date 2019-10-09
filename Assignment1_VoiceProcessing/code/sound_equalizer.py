@@ -6,27 +6,30 @@ import matplotlib.pylab as plt
 import numpy as np
 import scipy.io.wavfile as wav
 
-fs, soundwave = wav.read ('original_mono.wav')
-
-print(max(soundwave))
+fs, soundwave = wav.read ('original2_mono.wav')
 
 # plot time domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
+
 plt.plot(t, soundwave)
 plt.xlabel('time (s)')
-plt.ylabel('amplitude ') # ask in laboratory
-# plt.yscale('log')
-plt.grid('true')
+plt.ylabel('amplitude (samples)')
 plt.show()
 
-
 # Plot Frequency Domain
+#Plot in linear axis the frequency domain
 fftsoundwave = np.fft.fft(soundwave)
-f = np.linspace(0, fs, len(fftsoundwave))
-plt.plot(f, abs(fftsoundwave))
+fftsoundwavehalf = fftsoundwave[:len(fftsoundwave)//2]  # REMOVE  the half of the spectrum
+fhalf = np.linspace(0, fs/2, len(fftsoundwavehalf))
+fig = plt.figure()
+ax = plt.subplot(211)
+ax.plot(fhalf, abs(fftsoundwavehalf))
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Samples')
+ax = plt.subplot(212)
+ax.loglog(fhalf, abs(fftsoundwavehalf))
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Amplitude (dB)')
-plt.grid('TRUE')
 plt.show()
 
 
