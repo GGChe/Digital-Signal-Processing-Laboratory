@@ -6,22 +6,24 @@ import matplotlib.pylab as plt
 import numpy as np
 import scipy.io.wavfile as wav
 
-fs, soundwave = wav.read ('original2_mono.wav')
+fs, soundwave = wav.read ('Calibration500Hz.wav')
 
 # plot time domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
-
+plt.figure(1)
 plt.plot(t, soundwave)
 plt.xlabel('time (s)')
 plt.ylabel('amplitude (samples)')
-plt.show()
+
 
 # Plot Frequency Domain
-#Plot in linear axis the frequency domain
+
 fftsoundwave = np.fft.fft(soundwave)
 fftsoundwavehalf = fftsoundwave[:len(fftsoundwave)//2]  # REMOVE  the half of the spectrum
 fhalf = np.linspace(0, fs/2, len(fftsoundwavehalf))
-fig = plt.figure()
+
+# Plot in linear and logarithmic axis of the signal in frequency domain
+plt.figure(2)
 ax = plt.subplot(211)
 ax.plot(fhalf, abs(fftsoundwavehalf))
 plt.xlabel('Frequency (Hz)')
@@ -30,7 +32,20 @@ ax = plt.subplot(212)
 ax.loglog(fhalf, abs(fftsoundwavehalf))
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Amplitude (dB)')
+
+# Plot of the spectrogram
+plt.figure(3)
+plt.subplot(211)
+plt.plot(t, soundwave)
+plt.xlabel('time (s)')
+plt.ylabel('amplitude (samples)')
+plt.subplot(212)
+powerSpectrum, freqenciesFound, time, imageAxis = plt.specgram(soundwave, Fs=fs)
+plt.xlabel('Time')
+plt.ylabel('Frequency')
 plt.show()
+
+# Signal Processing
 
 
 
