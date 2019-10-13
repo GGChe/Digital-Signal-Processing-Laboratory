@@ -6,8 +6,9 @@ import matplotlib.pylab as plt
 import numpy as np
 import scipy.io.wavfile as wav
 from scipy.io.wavfile import write
+import wave
 
-fs, soundwave = wav.read ('original2_mono.wav')
+fs, soundwave = wav.read ('original_mono.wav')
 
 # plot time domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
@@ -21,6 +22,7 @@ plt.ylabel('amplitude (samples)')
                                           
 fftSoundWave = np.fft.fft(soundwave)
 fftSoundwaveHalf = fftSoundWave[:len(fftSoundWave) // 2]  # REMOVE  the half of the spectrum
+f = np.linspace(0, fs / 2, len(fftSoundWave))
 fHalf = np.linspace(0, fs / 2, len(fftSoundwaveHalf))
 
 # Plot in linear and logarithmic axis of the signal in frequency domain
@@ -44,25 +46,36 @@ plt.subplot(212)
 powerSpectrum, freqenciesFound, time, imageAxis = plt.specgram(soundwave, Fs=fs)
 plt.xlabel('Time')
 plt.ylabel('Frequency')
-plt.yscale('log')
-plt.ylim([10, 1e4])
+#plt.yscale('log') # activate for logarithm scale
+#plt.ylim([10, 1e4]) # set logarithm scale within that limits
 
 # Signal Processing
 
-fLow=3000
+fLow=1500
 fHigh=8000
-fLowSample = int(np.round((fLow/(fs/2))*len(fftSoundwaveHalf)))
-fHighSample = int(np.round((fHigh/(fs/2))*len(fftSoundwaveHalf)))
-filteredSoundWave = fftSoundwaveHalf
-filteredSoundWave[fLowSample:fHighSample] = filteredSoundWave[fLowSample:fHighSample] * 0.01
+fL = int(np.round((fLow / (fs / 2)) * len(fftSoundWave)))
+fH = int(np.round((fHigh / (fs / 2)) * len(fftSoundWave)))
+FSW = fftSoundWave # Filtered Sound Wave
+FSW[fL:fH] = FSW[fL:fH] * 0.01
+FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.01
 plt.figure(4)
-plt.plot(fHalf, abs(filteredSoundWave))
-timeFilteredSoundWave = np.fft.ifft(filteredSoundWave)
-plt.figure(5)
-plt.plot(t, )
+plt.plot(f, abs(FSW))
+timeFilteredSoundWave = np.fft.ifft(FSW)
+timeFilteredSoundWave = np.real(timeFilteredSoundWave)
+
+# open and write a .wav file
+f = wave.open(r"improved.wav", "wb")
+
+# set up the channels to 1、sample width to 2 and frame rate to 2*fs
+f.setnchannels(1)
+f.setsampwidth(2)
+f.setframerate(2*fs)
+# put x_clean into new audio
+timeFilteredSoundWave=timeFilteredSoundWave.astype(int)
+f.writeframes(timeFilteredSoundWave.tostring())
 
 
-write('SignalRectified.wav', fs, timeFilteredSoundWave)
+
 plt.show()
 
 
