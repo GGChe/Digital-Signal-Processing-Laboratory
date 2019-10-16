@@ -8,18 +8,19 @@ import scipy.io.wavfile as wav
 from scipy.io.wavfile import write
 import wave
 
-fs, soundwave = wav.read ('original_mono.wav')
+fs, soundwave = wav.read ('original_mono.wav') # Read sound signal
 
-# plot time domain
+# hello this is a git test
+
+
+# Representation of Time Domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
 plt.figure(1)
 plt.plot(t, soundwave)
 plt.xlabel('time (s)')
 plt.ylabel('amplitude (samples)')
 
-
 # Plot Frequency Domain
-                                          
 fftSoundWave = np.fft.fft(soundwave)
 fftSoundwaveHalf = fftSoundWave[:len(fftSoundWave) // 2]  # REMOVE  the half of the spectrum
 f = np.linspace(0, fs / 2, len(fftSoundWave))
