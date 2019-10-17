@@ -8,7 +8,7 @@ import scipy.io.wavfile as wav
 from scipy.io.wavfile import write
 import wave
 
-fs, soundwave = wav.read ('CalibrationSentence.wav') # Read sound signal
+fs, soundwave = wav.read ('GabrielVowel.wav') # Read sound signal
 
 # Representation of Time Domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
@@ -20,10 +20,8 @@ plt.ylabel('amplitude (samples)')
 # Plot Frequency Domain
 fftSoundWave = np.fft.fft(soundwave)
 fftSoundwaveHalf = fftSoundWave[:len(fftSoundWave) // 2]  # REMOVE  the half of the spectrum
-f = np.linspace(0, fs / 2, len(fftSoundWave))
+f = np.linspace(0, fs, len(fftSoundWave))
 fHalf = np.linspace(0, fs / 2, len(fftSoundwaveHalf))
-
-print(len(f), len(fHalf))
 
 # Plot in linear and logarithmic axis of the signal in frequency domain
 plt.figure(2)
@@ -32,10 +30,10 @@ ax.plot(fHalf, abs(fftSoundwaveHalf))
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Samples')
 ax = plt.subplot(212)
-ax.loglog(fHalf, abs(fftSoundwaveHalf))
+ax.plot(fHalf, 20*np.log10(abs(fftSoundwaveHalf)))
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Amplitude (dB)')
-
+plt.xscale('log')
 # Plot of the spectrogram
 plt.figure(3)
 plt.subplot(211)
@@ -49,27 +47,60 @@ plt.ylabel('Frequency')
 #plt.yscale('log') # activate for logarithm scale
 #plt.ylim([10, 1e4]) # set logarithm scale within that limits
 
-# Signal Processing
+# Signal Processing9
+fLow=1000
+fHigh=2000
+fAmplifyL = 2200
+fAmplifyH = 2700
+acoef=2
 
-fLow=2500
-fHigh=8000
-fAmplifyL = 85
-fAmplifyH = 250
-fL = int(np.round((fLow / (fs / 2)) * len(fftSoundWave))) # CHECK
-fH = int(np.round((fHigh / (fs / 2)) * len(fftSoundWave))) # CHECk
-fAL = int(np.round((fAmplifyL / (fs / 2)) * len(fftSoundWave)))
-fAH = int(np.round((fAmplifyH / (fs / 2)) * len(fftSoundWave)))
+fL = int(np.round((fLow / fs ) * len(fftSoundWave))) # CHECK
+fH = int(np.round((fHigh / fs ) * len(fftSoundWave))) # CHECk
+
+fAL = int(np.round((fAmplifyL / fs ) * len(fftSoundWave)))
+fAH = int(np.round((fAmplifyH / fs ) * len(fftSoundWave)))
+
 FSW = fftSoundWave # Processing Sound Wave
-FSW[fAL:fAH] = FSW[fAL:fAH] *2
-FSW[fL:fH] = FSW[fL:fH] * 0.01
-FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.01
+
+FSW[fAL:fAH] = FSW[fAL:fAH] * acoef
+FSW[len(FSW) - fAH:len(FSW) - fAL] = FSW[len(FSW) - fAH:len(FSW) - fAL] * acoef
+
+FSW[fL:fH] = FSW[fL:fH] * 0.05
+FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.05
+'''
+# ----------
+fLow=3000
+fHigh=4000
+fAmplifyL = 5000
+fAmplifyH = 6000
+acoef=2
+
+fL = int(np.round((fLow / fs ) * len(fftSoundWave))) # CHECK
+fH = int(np.round((fHigh / fs ) * len(fftSoundWave))) # CHECk
+
+fAL = int(np.round((fAmplifyL / fs ) * len(fftSoundWave)))
+fAH = int(np.round((fAmplifyH / fs ) * len(fftSoundWave)))
+
+FSW = fftSoundWave # Processing Sound Wave
+
+FSW[fAL:fAH] = FSW[fAL:fAH] * acoef
+FSW[len(FSW) - fAH:len(FSW) - fAL] = FSW[len(FSW) - fAH:len(FSW) - fAL] * acoef
+
+FSW[fL:fH] = FSW[fL:fH] * 0.05
+FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.05
+
+
+# ------------
+'''
+
+
 plt.figure(4)
 plt.subplot(211)
 plt.plot(f, abs(FSW))
 timeFilteredSoundWave = np.fft.ifft(FSW)
 timeFilteredSoundWave = np.real(timeFilteredSoundWave)
 plt.subplot(212)
-plt.plot(f, abs(FSW))
+plt.plot(f, 20*np.log10(abs(FSW)))
 plt.xscale('log')
 
 
