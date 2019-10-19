@@ -8,7 +8,7 @@ import scipy.io.wavfile as wav
 from scipy.io.wavfile import write
 import wave
 
-fs, soundwave = wav.read ('GabrielVowel.wav') # Read sound signal
+fs, soundwave = wav.read ('pruebaVoz.wav') # Read sound signal
 
 # Representation of Time Domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
@@ -39,19 +39,20 @@ plt.figure(3)
 plt.subplot(211)
 plt.plot(t, soundwave)
 plt.xlabel('time (s)')
+plt.xlim([0, len(t)/fs])
 plt.ylabel('amplitude (samples)')
 plt.subplot(212)
-powerSpectrum, freqenciesFound, time, imageAxis = plt.specgram(soundwave, Fs=fs)
+powerSpectrum, frequenciesFound, time, imageAxis = plt.specgram(soundwave, Fs=fs)
 plt.xlabel('Time')
 plt.ylabel('Frequency')
 #plt.yscale('log') # activate for logarithm scale
 #plt.ylim([10, 1e4]) # set logarithm scale within that limits
 
 # Signal Processing9
-fLow=1000
-fHigh=2000
-fAmplifyL = 2200
-fAmplifyH = 2700
+fLow=0
+fHigh=150
+fAmplifyL = 305
+fAmplifyH = 325
 acoef=2
 
 fL = int(np.round((fLow / fs ) * len(fftSoundWave))) # CHECK
@@ -65,8 +66,9 @@ FSW = fftSoundWave # Processing Sound Wave
 FSW[fAL:fAH] = FSW[fAL:fAH] * acoef
 FSW[len(FSW) - fAH:len(FSW) - fAL] = FSW[len(FSW) - fAH:len(FSW) - fAL] * acoef
 
-FSW[fL:fH] = FSW[fL:fH] * 0.05
-FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.05
+FSW[fL:fH] = FSW[fL:fH] * 0.3
+FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.3
+
 '''
 # ----------
 fLow=3000
@@ -96,11 +98,11 @@ FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.05
 
 plt.figure(4)
 plt.subplot(211)
-plt.plot(f, abs(FSW))
+plt.plot(fHalf, abs(FSW[:len(FSW) // 2]))
 timeFilteredSoundWave = np.fft.ifft(FSW)
 timeFilteredSoundWave = np.real(timeFilteredSoundWave)
 plt.subplot(212)
-plt.plot(f, 20*np.log10(abs(FSW)))
+plt.plot(fHalf, 20*np.log10(abs(FSW[:len(FSW) // 2])))
 plt.xscale('log')
 
 
