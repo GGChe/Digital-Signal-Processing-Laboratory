@@ -8,7 +8,7 @@ import scipy.io.wavfile as wav
 from scipy.io.wavfile import write
 import wave
 
-fs, soundwave = wav.read ('pruebaVoz.wav') # Read sound signal
+fs, soundwave = wav.read ('VoiceRecording.wav') # Read sound signal
 
 # Representation of Time Domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave))
