@@ -20,6 +20,9 @@
   </component>
   <component name="ProjectId" id="1RvWfSlkz02XOK5Ps8vbESRIWje" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="restartRequiresConfirmation" value="false" />
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
