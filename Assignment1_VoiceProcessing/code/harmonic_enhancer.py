@@ -52,9 +52,9 @@ the conversion needs to be parsed to int obtaining the position of the fft signa
 
 fLow = 0 # Hz
 fHigh = 0  # Hz
-fAmplifyL = 1100  # Hz
-fAmplifyH = 1800  # Hz
-acoef = 2  # amplification rate
+fAmplifyL = 1000  # Hz
+fAmplifyH = 2000  # Hz
+acoef = 3  # amplification rate
 
 fL = int((fLow / fs ) * len(fftSoundWave))
 fH = int((fHigh / fs ) * len(fftSoundWave))

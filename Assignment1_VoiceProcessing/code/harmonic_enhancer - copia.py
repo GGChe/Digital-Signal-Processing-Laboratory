@@ -5,6 +5,7 @@ import matplotlib.pylab as plt
 import numpy as np
 import scipy.io.wavfile as wav
 import wave
+plt.rcParams['font.size'] = 14
 
 fs, soundwave = wav.read ('original.wav') # Read sound signal
 
@@ -15,7 +16,7 @@ t = np.linspace (0, len(soundwave)/fs, len(soundwave)) # time vector
 plt.figure(1)
 plt.plot(t, soundwave)
 plt.xlabel('Time (s)')
-plt.ylabel('Magnitude')
+plt.ylabel('Amplitude')
 
 # ---- Frequency Domain Calculations ----
 fftSoundWave = np.fft.fft(soundwave)
@@ -30,7 +31,7 @@ plt.figure(2)
 ax = plt.subplot(211)
 ax.plot(fHalf, abs(fftSoundwaveHalf))
 plt.xlabel('Frequency (Hz)')
-plt.ylabel('Samples')
+plt.ylabel('Amplitude')
 ax = plt.subplot(212)
 ax.plot(fHalf, 20*np.log10(abs(fftSoundwaveHalf)))
 plt.xlabel('Frequency (Hz)')
@@ -50,11 +51,11 @@ the conversion needs to be parsed to int obtaining the position of the fft signa
 
 """
 
-fLow = 400  # Hz
-fHigh = 460  # Hz
-fAmplifyL = 300  # Hz
-fAmplifyH = 355  # Hz
-acoef = 2.5  # amplification rate
+fLow = 5500  # Hz
+fHigh = fs/2  # Hz
+fAmplifyL = 1250 # Hz
+fAmplifyH = 2000  # Hz
+acoef = 3  # amplification rate
 
 fL = int((fLow / fs ) * len(fftSoundWave))
 fH = int((fHigh / fs ) * len(fftSoundWave))
@@ -69,8 +70,8 @@ FSW = fftSoundWave  # pass fftSoundWave to other variable to not overlap the ori
 
 FSW[fAL:fAH] = FSW[fAL:fAH] * acoef
 FSW[len(FSW) - fAH:len(FSW) - fAL] = FSW[len(FSW) - fAH:len(FSW) - fAL] * acoef
-FSW[fL:fH] = FSW[fL:fH] * 0.5
-FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.5
+FSW[fL:fH] = FSW[fL:fH] * 0.1
+FSW[len(FSW) - fH:len(FSW) - fL] = FSW[len(FSW) - fH:len(FSW) - fL] * 0.1
 
 
 # ----------------------
@@ -111,7 +112,7 @@ plt.figure(3)
 plt.subplot(211)
 plt.plot(fHalf, abs(FSW[:len(FSW) // 2]))
 plt.xlabel('Frequency (Hz)')
-plt.ylabel('Magnitude ')
+plt.ylabel('Amplitude')
 timeFilteredSoundWave = np.fft.ifft(FSW)
 timeFilteredSoundWave = np.real(timeFilteredSoundWave)
 plt.subplot(212)
