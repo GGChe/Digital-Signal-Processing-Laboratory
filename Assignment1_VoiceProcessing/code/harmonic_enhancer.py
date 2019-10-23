@@ -6,7 +6,7 @@ import numpy as np
 import scipy.io.wavfile as wav
 import wave
 
-fs, soundwave = wav.read ('original.wav') # Read sound signal
+fs, soundwave = wav.read ('original2.wav') # Read sound signal
 
 # Representation of Time Domain
 t = np.linspace (0, len(soundwave)/fs, len(soundwave)) # time vector
@@ -54,7 +54,7 @@ fLow = 0 # Hz
 fHigh = 0  # Hz
 fAmplifyL = 1100  # Hz
 fAmplifyH = 1800  # Hz
-acoef = 4 # amplification rate
+acoef = 2  # amplification rate
 
 fL = int((fLow / fs ) * len(fftSoundWave))
 fH = int((fHigh / fs ) * len(fftSoundWave))
