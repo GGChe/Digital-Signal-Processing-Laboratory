@@ -35,7 +35,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.harmonic_enhancer - copia">
+  <component name="RunManager" selected="Python.harmonic_enhancer">
     <configuration name="exercise9" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="code" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -122,8 +122,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.harmonic_enhancer - copia" />
         <item itemvalue="Python.harmonic_enhancer" />
+        <item itemvalue="Python.harmonic_enhancer - copia" />
         <item itemvalue="Python.sound_equalizer" />
         <item itemvalue="Python.exercise9" />
       </list>
