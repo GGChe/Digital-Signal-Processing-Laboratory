@@ -98,7 +98,6 @@ f.setsampwidth(2)
 f.setframerate(2*fs)
 timeFilteredSoundWave=timeFilteredSoundWave.astype(int)
 f.writeframes(timeFilteredSoundWave.tostring())
-
 # --- EXTRA ----
 # Here, the spectogram is presented to see the variation of frequencies with respect to the time domain signal.
 # This representation is very useful to analyse the profile of the sound and the frequencies distribution
