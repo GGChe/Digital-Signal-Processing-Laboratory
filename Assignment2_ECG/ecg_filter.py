@@ -30,14 +30,28 @@ f = np.linspace(0, fs, len(ch1)) # Full spectrum frequency range
 
 
 plt.figure(2)
-plt.plot(f, 20*np.log10(abs(ch1)))
+plt.plot(f, 20*np.log10(abs(ecg_fft)))
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
-# plt.xscale('log')
+plt.xscale('log')
 
-
+# filter
+M = 200
+k1 = int(45 / fs * M)
+k2 = int(55 / fs * M)
+x = np.ones(M)
+x[k1:k2 + 1] = 0
+x[M - k2:M - k1 + 1] = 0
+x = np.fft.ifft(x)
+x = np.real(x)
+h = np.zeros(M)
+h[0:int(M / 2)] = x[int(M / 2):M]
+h[int(M / 2):M] = x[0:int(M / 2)]
+plt.figure(3)
+plt.plot(h)
 
 plt.show()
+
 
 class FIR_filter:
     def __init__(self, _coefficients):
@@ -45,19 +59,10 @@ class FIR_filter:
         self.buffer=np.zeros(len(_coefficients))
 
     def dofilter(self, v):
-        M = 200
-        k1 = int(45/fs * M)
-        k2 = int(55 / fs * M)
-        x = np.ones(M)
-        x[k1:k2+1] = 0
-        x[M-k2:M-k1+1] = 0
-        x = np.fft.ifft(x)
-        x = np.real()
 
         return result
 
-
-
+"""
 fs = 1000
 f1 = 45
 f2 = 55
@@ -67,5 +72,5 @@ b = signal.firwin(999, [f1 / fs * 2, f2 / fs * 2])
 b = b * scale
 b = b.astype(int)
 np.savetxt("coeff12bit.dat", b)
-
+"""
 
