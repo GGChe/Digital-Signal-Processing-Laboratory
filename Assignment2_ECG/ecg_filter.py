@@ -10,25 +10,24 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
+import scipy.signal as signal
+
 ecg = np.loadtxt("Gabriel_Brea_norm.dat")
 t = ecg[:, 0]
 ch1 = ecg[:, 1]
-ch2 = ecg[:, 2]
-ch2 = ecg[:, 3]
 
+# 1000 Hz sampling rate
 fs = 1000
 
 # Plot of Channel 1
+plt.figure(1)
 plt.plot(t, ch1)
 plt.xlabel('Time (ms)')
 plt.ylabel('Amplitude')
 
 # Fourier transform Calculation
-
 ecg_fft = np.fft.fft(ch1)
 f = np.linspace(0, fs, len(ch1)) # Full spectrum frequency range
-
-
 plt.figure(2)
 plt.plot(f, 20*np.log10(abs(ecg_fft)))
 plt.xlabel('Frequency (Hz)')
@@ -37,18 +36,28 @@ plt.xscale('log')
 
 # filter
 M = 200
-k1 = int(45 / fs * M)
-k2 = int(55 / fs * M)
+k1 = int(45/fs * M)
+k2 = int(55/fs * M)
+
 x = np.ones(M)
-x[k1:k2 + 1] = 0
-x[M - k2:M - k1 + 1] = 0
+
+x[k1:k2+1] = 0
+x[M-k2:M-k1+1] = 0
 x = np.fft.ifft(x)
+
 x = np.real(x)
+
 h = np.zeros(M)
-h[0:int(M / 2)] = x[int(M / 2):M]
-h[int(M / 2):M] = x[0:int(M / 2)]
+
+h[0:int(M/2)] = x[int(M/2):M]
+h[int(M/2):M] = x[0:int(M/2)]
+
+h = h * np.hamming(M)
+
+y2 = signal.lfilter(h, 1, ch1)
+
 plt.figure(3)
-plt.plot(h)
+plt.plot(y2)
 
 plt.show()
 
