@@ -36,19 +36,17 @@ plt.ylabel('Magnitude (dB)')
 
 M = 100
 f_resp=np.ones(M)
-k1 = int(45/fs * M)
-k2 = int(55/fs * M)
 # note we need to add "+1" to the end because the end of
 # the range is not included.
-f_resp[k1:k2+1]=0
-f_resp[M-k2:M-k1+1]=0
+f_resp[4:6+1]=0
+f_resp[94:96+1]=0
 hc=np.fft.ifft(f_resp)
 h=np.real(hc)
 # this is from index 0 to index 49 on the left
 # and on the right hand side from index 50 to index 99
 h_shift = np.zeros(100)
-h[0:int(M/2)] = f_resp[int(M/2):M]
-h[int(M/2):M] = f_resp[0:int(M/2)]
+h_shift[0:50]=h[50:100]
+h_shift[50:100]=h[0:50]
 h_wind=h_shift * np.hamming(100)
 
 f_resp2=np.ones(100)
@@ -65,7 +63,7 @@ h_shift2[0:50] = h2[50:100]
 h_shift2[50:100] = h2[0:50]
 h_wind2=h_shift2 * np.hamming(100)
 
-y2 = signal.lfilter(h_wind, 1, ch1)
+y2 = signal.lfilter(h_wind2, 1, ch1)
 plt.figure(3)
 plt.plot(y2)
 plt.show()
