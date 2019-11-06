@@ -83,22 +83,16 @@ class FIR_filter(object):
             result = np.sum(self.Buffer[:] * h_shift[:])
             self.P = 0
 
-        result = np.sum(self.Buffer[:] * h_shift[:])
-        self.P = self.P + 1
+        else:
+            result = np.sum(self.Buffer[:] * h_shift[:])
+            self.P = self.P + 1
+        print(result)
+        return result
 
-        plt.figure(3)
-        plt.plot(y)
-        return y
 
-
-for i in np.linspace(0, , len(ECG)):
+for i in range(0, len(ECG)):
     ecgin = ECG[i]
     classfilter = FIR_filter(200, 1, 45, 500)
-    y = classfilter.dofilter(ecgin)
+    classfilter.dofilter(ecgin)
 
-plt.figure(4)
-plt.plot(20 * np.log10(np.fft.fft(y, fs)))
-plt.xscale('log')
 plt.show()
-
-np.savetxt("coeff12bit.dat", b)
