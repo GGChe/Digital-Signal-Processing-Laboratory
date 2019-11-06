@@ -83,8 +83,9 @@ class FIR_filter(object):
             result = np.sum(self.Buffer[:] * h_shift[:])
             self.P = 0
 
-        result = np.sum(self.Buffer[:] * h_shift[:])
-        self.P = self.P + 1
+        else:
+            result = np.sum(self.Buffer[:] * h_shift[:])
+            self.P = self.P + 1
 
         plt.figure(3)
         plt.plot(y)
@@ -92,7 +93,7 @@ class FIR_filter(object):
 
 
 for i in np.linspace(0, , len(ECG)):
-    ecgin = ECG[i]
+    ecgin = ECG[int(i)]
     classfilter = FIR_filter(200, 1, 45, 500)
     y = classfilter.dofilter(ecgin)
 
