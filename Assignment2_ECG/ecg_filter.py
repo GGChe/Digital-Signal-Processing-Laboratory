@@ -10,7 +10,7 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
-import scipy.signal as signal
+import matplotlib.animation as animation
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
 t = data[:, 0]
@@ -39,9 +39,11 @@ class FIR_filter(object):
     buffer = []
     P: int
     FIRfilter = []
+
     def __init__(self, ntaps, f0, f1, f2):
         self.buffer = np.zeros(ntaps)
-        P = 0
+        self.P = 0
+        self.FIRfilter = np.zeros(ntaps)
         f_resp = np.ones(ntaps)
         # Limits for the filtering
         k0 = int((f0 / fs) * ntaps)
@@ -59,30 +61,59 @@ class FIR_filter(object):
         self.FIRfilter = h_shift
 
     def dofilter(self, v):
-        self.Buffer[self.P] = v
-        output = np.sum(self.Buffer[:] * self.FIRfilter[:])
-        if self.P == len(self.buffer):
+        self.buffer[self.P] = v
+        output = np.sum(self.buffer[:] * self.FIRfilter[:])
+        if self.P == len(self.buffer) - 1:
             self.P = 0
-        if self.P < len(self.buffer):
+        if self.P < len(self.buffer) - 1:
             self.P = self.P + 1
-        print(output)
         return output
+
+
+class RealtimePlotWindow:
+
+    def __init__(self):
+        # create a plot window
+        self.fig, self.ax = plt.subplots()
+        # that's our plotbuffer
+        self.plotbuffer = np.zeros(500)
+        # create an empty line
+        self.line, = self.ax.plot(self.plotbuffer)
+        # axis
+        self.ax.set_ylim(0, 1)
+        # That's our ringbuffer which accumluates the samples
+        # It's emptied every time when the plot window below
+        # does a repaint
+        self.ringbuffer = []
+        # start the animation
+        plt.figure(4)
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=100)
+
+    # updates the plot
+    def update(self, data):
+        # add new data to the buffer
+        self.plotbuffer = np.append(self.plotbuffer, self.ringbuffer)
+        # only keep the 500 newest ones and discard the old ones
+        self.plotbuffer = self.plotbuffer[-500:]
+        self.ringbuffer = []
+        # set the new 500 points of channel 9
+        self.line.set_ydata(self.plotbuffer)
+        return self.line,
+
+    # appends data to the ringbuffer
+    def addData(self, v):
+        self.ringbuffer.append(v)
+
+
+# Create an instance of an animated scrolling window
+# To plot more channels just create more instances and add callback handlers below
+realtimePlotWindow = RealtimePlotWindow()
 
 classfilter = FIR_filter(200, 1, 45, 500)
 for i in range(0, len(ECG)):
     ecgin = ECG[i]
     y = classfilter.dofilter(ecgin)
-
-fig, ax = plt.subplots()
-xdata, ydata = [], []
-ln, = plt.plot([], [], 'ro')
-
-def init():
-    ax.set_xlim(0, 2*np.pi)
-    ax.set_ylim(-1, 1)
-    return ln,
-
-
-
-
+    realtimePlotWindow.addData(y)
 plt.show()
+
+print('finished')

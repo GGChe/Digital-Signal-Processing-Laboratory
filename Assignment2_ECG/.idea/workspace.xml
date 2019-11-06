@@ -35,7 +35,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ecg_filter_50_DC">
+  <component name="RunManager" selected="Python.ecg_filter">
     <configuration name="ecg_filter" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -122,9 +122,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.ecg_filter" />
         <item itemvalue="Python.ecg_filter_50_DC" />
         <item itemvalue="Python.ecg_filter_06112019" />
-        <item itemvalue="Python.ecg_filter" />
         <item itemvalue="Python.prueba" />
       </list>
     </recent_temporary>
