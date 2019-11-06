@@ -35,75 +35,54 @@ plt.ylabel('Magnitude (dB)')
 plt.xscale('log')
 
 
-# -----------
-
-class RingBuffer:
-    def __init__(self, size):
-        self.data = [None for i in range(size)]
-
-    def append(self, x):
-        self.data.pop(0)
-        self.data.append(x)
-
-    def get(self):
-        return self.data
-
-
 class FIR_filter(object):
-    Buffer = 0
-    P = 0
-
+    buffer = []
+    P: int
+    FIRfilter = []
     def __init__(self, ntaps, f0, f1, f2):
-        self.ntaps = ntaps
-        self.f0 = f0
-        self.f1 = f1
-        self.f2 = f2
-        self.Buffer = np.zeros(ntaps)
-        self.P = 0
-
-    def dofilter(self, v):
-        f_resp = np.ones(self.ntaps)
+        self.buffer = np.zeros(ntaps)
+        P = 0
+        f_resp = np.ones(ntaps)
         # Limits for the filtering
-        k0 = int((self.f0 / fs) * self.ntaps)
-        k1 = int((self.f1 / fs) * self.ntaps)
-        k2 = int((self.f2 / fs) * self.ntaps)
+        k0 = int((f0 / fs) * ntaps)
+        k1 = int((f1 / fs) * ntaps)
+        k2 = int((f2 / fs) * ntaps)
         f_resp[k1:k2 + 1] = 0
-        f_resp[self.ntaps - k2:self.ntaps - k1 + 1] = 0
+        f_resp[ntaps - k2:ntaps - k1 + 1] = 0
         f_resp[0:k0 + 1] = 0
-        f_resp[self.ntaps - k0:self.ntaps] = 0
+        f_resp[ntaps - k0:ntaps] = 0
         hc = np.fft.ifft(f_resp)
         h = np.real(hc)
-        h_shift = np.zeros(self.ntaps)
-        h_shift[0:int(self.ntaps / 2)] = h[int(self.ntaps / 2):self.ntaps]
-        h_shift[int(self.ntaps / 2):self.ntaps] = h[0:int(self.ntaps / 2)]
-        # h_wind = h_shift * np.hamming(self.ntaps)
+        h_shift = np.zeros(ntaps)
+        h_shift[0:int(ntaps / 2)] = h[int(ntaps / 2):ntaps]
+        h_shift[int(ntaps / 2):ntaps] = h[0:int(ntaps / 2)]
+        self.FIRfilter = h_shift
+
+    def dofilter(self, v):
         self.Buffer[self.P] = v
-
-        if self.P == self.ntaps:
-            result = np.sum(self.Buffer[:] * h_shift[:])
+        output = np.sum(self.Buffer[:] * self.FIRfilter[:])
+        if self.P == len(self.buffer):
             self.P = 0
-
-        else:
-            result = np.sum(self.Buffer[:] * h_shift[:])
+        if self.P < len(self.buffer):
             self.P = self.P + 1
-<<<<<<< HEAD
-        print(result)
-        return result
+        print(output)
+        return output
 
-
+classfilter = FIR_filter(200, 1, 45, 500)
 for i in range(0, len(ECG)):
     ecgin = ECG[i]
-=======
+    y = classfilter.dofilter(ecgin)
 
-        plt.figure(3)
-        plt.plot(y)
-        return y
+fig, ax = plt.subplots()
+xdata, ydata = [], []
+ln, = plt.plot([], [], 'ro')
+
+def init():
+    ax.set_xlim(0, 2*np.pi)
+    ax.set_ylim(-1, 1)
+    return ln,
 
 
-for i in np.linspace(0, , len(ECG)):
-    ecgin = ECG[int(i)]
->>>>>>> bd9e3bd7fb116090d287e152938ee0de65ef64ef
-    classfilter = FIR_filter(200, 1, 45, 500)
-    classfilter.dofilter(ecgin)
+
 
 plt.show()
