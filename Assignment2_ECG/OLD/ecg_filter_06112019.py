@@ -77,5 +77,5 @@ for i in range(0, len(ECG)):
     FIR = FIR_filter(200, 1, 45, 500)
     y = FIR.dofilter(ecgin)
 
-line_ani = animation.FuncAnimation(fig1, update_line, 25, fargs=(data, l), interval=50, blit=True)
+plt.plot(y)
 plt.show()

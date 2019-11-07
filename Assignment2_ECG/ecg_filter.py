@@ -10,7 +10,6 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
 t = data[:, 0]
@@ -35,92 +34,70 @@ plt.ylabel('Magnitude (dB)')
 plt.xscale('log')"""
 
 
+class RingBuffer:
+    def __init__(self, size):
+        self.data = [0 for i in range(size)]
+
+    def append(self, x):
+        self.data.pop(0)
+        self.data.append(x)
+
+    def get(self):
+        return self.data
 
 
 class FIR_filter(object):
-    buffer = []
+    buffer = RingBuffer(200)
     P: int
     FIRfilter = []
 
-    def __init__(self, ntaps, f0, f1, f2):
-        self.buffer = np.zeros(ntaps)
+    def __init__(self, coeff):
         self.P = 0
-        self.FIRfilter = np.zeros(ntaps)
-        f_resp = np.ones(ntaps)
-        # Limits for the filtering
-        k0 = int((f0 / fs) * ntaps)
-        k1 = int((f1 / fs) * ntaps)
-        k2 = int((f2 / fs) * ntaps)
-        f_resp[k1:k2 + 1] = 0
-        f_resp[ntaps - k2:ntaps - k1 + 1] = 0
-        f_resp[0:k0 + 1] = 0
-        f_resp[ntaps - k0:ntaps] = 0
-        hc = np.fft.ifft(f_resp)
-        h = np.real(hc)
-        h_shift = np.zeros(ntaps)
-        h_shift[0:int(ntaps / 2)] = h[int(ntaps / 2):ntaps]
-        h_shift[int(ntaps / 2):ntaps] = h[0:int(ntaps / 2)]
-        w = np.blackman(ntaps)
-        self.FIRfilter = h_shift * w
-        plt.figure(5)
-        plt.plot(self.FIRfilter)
+        self.FIRfilter = coeff
 
     def dofilter(self, v):
-        self.buffer[self.P] = v
-        output = np.sum(self.buffer[:] * self.FIRfilter[:])
-        if self.P == len(self.buffer) - 1:
-            self.P = 0
-        if self.P < len(self.buffer) - 1:
-            self.P = self.P + 1
-        return output
+        self.buffer.append(v)
+        currentBuffer = self.buffer.get()
+        y = 0
+        for j in range(len(coeff)):
+            y += currentBuffer[j] * self.FIRfilter[j]
+        return y
 
 
-"""class RealtimePlotWindow:
+# Calculate the FIR filter
+f0 = 3
+f1 = 45
+f2 = 55
+ntaps = 200
+f_resp = np.ones(ntaps)
 
-    def __init__(self):
-        # create a plot window
-        self.fig, self.ax = plt.subplots()
-        # that's our plotbuffer
-        self.plotbuffer = np.zeros(500)
-        # create an empty line
-        self.line, = self.ax.plot(self.plotbuffer)
-        # axis
-        self.ax.set_ylim(0, 1)
-        # That's our ringbuffer which accumluates the samples
-        # It's emptied every time when the plot window below
-        # does a repaint
-        self.ringbuffer = []
-        # start the animation
-        plt.figure(4)
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=100)
+# Conversion to samples in the FIR filter
+k0 = int((f0 / fs) * ntaps)
+k1 = int((f1 / fs) * ntaps)
+k2 = int((f2 / fs) * ntaps)
 
-    # updates the plot
-    def update(self, data):
-        # add new data to the buffer
-        self.plotbuffer = np.append(self.plotbuffer, self.ringbuffer)
-        # only keep the 500 newest ones and discard the old ones
-        self.plotbuffer = self.plotbuffer[-500:]
-        self.ringbuffer = []
-        # set the new 500 points of channel 9
-        self.line.set_ydata(self.plotbuffer)
-        return self.line,
+# Calculate filter type
+f_resp[k1:k2 + 1] = 0
+f_resp[ntaps - k2:ntaps - k1 + 1] = 0
+f_resp[0:k0 + 1] = 0
+f_resp[ntaps - k0:ntaps] = 0
+hc = np.fft.ifft(f_resp)
+h = np.real(hc)
+coeff = np.zeros(ntaps)
+coeff[0:int(ntaps / 2)] = h[int(ntaps / 2):ntaps]
+coeff[int(ntaps / 2):ntaps] = h[0:int(ntaps / 2)]
+w = np.blackman(ntaps)
+coeff = coeff * w
 
-    # appends data to the ringbuffer
-    def addData(self, v):
-        self.ringbuffer.append(v)
-"""
+f = FIR_filter(coeff)
 
-# Create an instance of an animated scrolling window
-# To plot more channels just create more instances and add callback handlers below
-
-f = FIR_filter(200, 1, 45, 55)
-y= np.empty(len(ECG))
-for i in range(len(data)):
+y = np.empty(len(ECG))
+for i in range(len(ECG)):
     y[i] = f.dofilter(ECG[i])
+
 
 plt.figure(2)
 plt.plot(y)
 plt.show()
-
 
 print('finished')

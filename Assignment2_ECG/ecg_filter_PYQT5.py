@@ -1,16 +1,10 @@
-#   Code for the Assignment 1 of Digital Signal Processing
-#   Authors: Gabriel Galeote-Checa & Anton Saikia
+from pyqtgraph import PlotWidget, plot
 
-
-"""
-The input signal is a .dat file with four columns -> [time, Channel1, Channel2, Channel3]
-The channels 2 and 3 were recorded at x5 amplification so, the amplitude must be divided by 5.
-The total time of recording is was: 47 seconds
-"""
-
+from PyQt5 import QtWidgets, uic
+import pyqtgraph as pg
+import sys  # We need sys so that we can pass argv to QApplication
 import numpy as np
-import matplotlib.pyplot as plt
-
+import os
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
 t = data[:, 0]
@@ -18,22 +12,6 @@ ECG = data[:, 1]
 
 # 1000 Hz sampling rate
 fs = 1000
-
-# Plot of Channel 1
-plt.figure(1)
-plt.plot(t, ECG)
-plt.xlabel('Time (ms)')
-plt.ylabel('Amplitude')
-
-# Fourier transform Calculation
-"""ecg_fft = np.fft.fft(ECG)
-f = np.linspace(0, fs, len(ECG))  # Full spectrum frequency range
-plt.figure(2)
-plt.plot(f, 20 * np.log10(abs(ecg_fft)))
-plt.xlabel('Frequency (Hz)')
-plt.ylabel('Magnitude (dB)')
-plt.xscale('log')"""
-
 
 
 class RingBuffer:
@@ -46,6 +24,7 @@ class RingBuffer:
 
     def get(self):
         return self.data
+
 
 class FIR_filter(object):
     buffer = RingBuffer(200)
@@ -71,33 +50,46 @@ class FIR_filter(object):
         h_shift[int(ntaps / 2):ntaps] = h[0:int(ntaps / 2)]
         w = np.blackman(ntaps)
         self.FIRfilter = h_shift * w
-        plt.figure(5)
-        plt.plot(self.FIRfilter)
 
     def dofilter(self, v):
         self.buffer.append(v)
         currentBuffer = self.buffer.get()
-        output = np.sum( currentBuffer[:] * self.FIRfilter[:])
+        output = np.sum(currentBuffer[:] * self.FIRfilter[:])
+
         if self.P == 200 - 1:
             self.P = 0
         if self.P < 200 - 1:
             self.P = self.P + 1
-        print(output)
         # print("Buffer:", self.buffer, "-- Output: ", output)
         return output
 
 
-# Create an instance of an animated scrolling window
-# To plot more channels just create more instances and add callback handlers below
-
 f = FIR_filter(200, 1, 45, 55)
-y= np.empty(len(ECG))
-for i in range(len(ECG)):
-    y[i] = f.dofilter(ECG[i])
 
-plt.figure(2)
-plt.plot(y)
-plt.show()
+class MainWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, *args, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+
+        self.graphWidget = pg.PlotWidget()
+        self.setCentralWidget(self.graphWidget)
+        y = np.zeros(len(t))
+        hour = t
+        for i in range(len(t)):
+            y[i] = f.dofilter(ECG[i])
+            temperature = y
+
+        self.graphWidget.setBackground('w')
+        self.graphWidget.plot(hour, temperature)
+        pen = pg.mkPen(color=(255, 0, 0))
+        self.graphWidget.plot(hour, temperature, pen=pen)
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    main = MainWindow()
+    main.show()
+    sys.exit(app.exec_())
 
 
-print('finished')
+if __name__ == '__main__':
+    main()
