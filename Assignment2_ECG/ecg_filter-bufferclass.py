@@ -7,7 +7,7 @@ The input signal is a .dat file with four columns -> [time, Channel1, Channel2, 
 The channels 2 and 3 were recorded at x5 amplification so, the amplitude must be divided by 5.
 The total time of recording is was: 47 seconds
 """
-
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -34,16 +34,23 @@ plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
 plt.xscale('log')"""
 
+class RingBuffer:
+    def __init__(self, size):
+        self.data = [0 for i in range(size)]
 
+    def append(self, x):
+        self.data.pop(0)
+        self.data.append(x)
 
+    def get(self):
+        return self.data
 
 class FIR_filter(object):
-    buffer = []
+    buffer = RingBuffer(200)
     P: int
     FIRfilter = []
 
     def __init__(self, ntaps, f0, f1, f2):
-        self.buffer = np.zeros(ntaps)
         self.P = 0
         self.FIRfilter = np.zeros(ntaps)
         f_resp = np.ones(ntaps)
@@ -66,56 +73,24 @@ class FIR_filter(object):
         plt.plot(self.FIRfilter)
 
     def dofilter(self, v):
-        self.buffer[self.P] = v
-        output = np.sum(self.buffer[:] * self.FIRfilter[:])
-        if self.P == len(self.buffer) - 1:
+        self.buffer.append(v)
+        currentBuffer = self.buffer.get()
+        output = np.sum( currentBuffer[:] * self.FIRfilter[:])
+        if self.P == 200 - 1:
             self.P = 0
-        if self.P < len(self.buffer) - 1:
+        if self.P < 200 - 1:
             self.P = self.P + 1
+        print(output)
+        # print("Buffer:", self.buffer, "-- Output: ", output)
         return output
 
-
-"""class RealtimePlotWindow:
-
-    def __init__(self):
-        # create a plot window
-        self.fig, self.ax = plt.subplots()
-        # that's our plotbuffer
-        self.plotbuffer = np.zeros(500)
-        # create an empty line
-        self.line, = self.ax.plot(self.plotbuffer)
-        # axis
-        self.ax.set_ylim(0, 1)
-        # That's our ringbuffer which accumluates the samples
-        # It's emptied every time when the plot window below
-        # does a repaint
-        self.ringbuffer = []
-        # start the animation
-        plt.figure(4)
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=100)
-
-    # updates the plot
-    def update(self, data):
-        # add new data to the buffer
-        self.plotbuffer = np.append(self.plotbuffer, self.ringbuffer)
-        # only keep the 500 newest ones and discard the old ones
-        self.plotbuffer = self.plotbuffer[-500:]
-        self.ringbuffer = []
-        # set the new 500 points of channel 9
-        self.line.set_ydata(self.plotbuffer)
-        return self.line,
-
-    # appends data to the ringbuffer
-    def addData(self, v):
-        self.ringbuffer.append(v)
-"""
 
 # Create an instance of an animated scrolling window
 # To plot more channels just create more instances and add callback handlers below
 
 f = FIR_filter(200, 1, 45, 55)
 y= np.empty(len(ECG))
-for i in range(len(data)):
+for i in range(len(ECG)):
     y[i] = f.dofilter(ECG[i])
 
 plt.figure(2)
