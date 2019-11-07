@@ -59,7 +59,6 @@ class FIR_filter(object):
             self.P = 0
         if self.P < 200 - 1:
             self.P = self.P + 1
-        print(output)
         return output
 
 
