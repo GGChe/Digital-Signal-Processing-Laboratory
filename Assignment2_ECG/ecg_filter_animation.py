@@ -1,10 +1,10 @@
-from pyqtgraph import PlotWidget, plot
+# python_live_plot.py
 
-from PyQt5 import QtWidgets, uic
-import pyqtgraph as pg
-import sys  # We need sys so that we can pass argv to QApplication
+import random
+from itertools import count
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import numpy as np
-import os
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
 t = data[:, 0]
@@ -55,41 +55,32 @@ class FIR_filter(object):
         self.buffer.append(v)
         currentBuffer = self.buffer.get()
         output = np.sum(currentBuffer[:] * self.FIRfilter[:])
-
         if self.P == 200 - 1:
             self.P = 0
         if self.P < 200 - 1:
             self.P = self.P + 1
-        # print("Buffer:", self.buffer, "-- Output: ", output)
+        print(output)
         return output
 
 
-f = FIR_filter(200, 1, 45, 55)
+filter = FIR_filter(200, 1, 45, 55)
 
-class MainWindow(QtWidgets.QMainWindow):
+plt.style.use('fast')
 
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
+x_values = []
+y_values = []
 
-        self.graphWidget = pg.PlotWidget()
-        self.setCentralWidget(self.graphWidget)
-        y = np.zeros(len(t))
-        hour = t
-        for i in range(len(t)):
-            y[i] = f.dofilter(ECG[i])
-            temperature = y
+index = count()
+fig, ax = plt.subplots()
 
-        self.graphWidget.setBackground('w')
-        self.graphWidget.plot(hour, temperature)
-        pen = pg.mkPen(color=(255, 0, 0))
-        self.graphWidget.plot(hour, temperature, pen=pen)
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    main = MainWindow()
-    main.show()
-    sys.exit(app.exec_())
+def animate(i):
+    x_values.append(next(index))
+    y_values.append(filter.dofilter(ECG[i]))
+    plt.cla()
+    plt.plot(x_values, y_values)
 
 
-if __name__ == '__main__':
-    main()
+ani = FuncAnimation(fig, animate, interval = 1)
+
+plt.tight_layout()
+plt.show()
