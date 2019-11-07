@@ -7,10 +7,11 @@ The input signal is a .dat file with four columns -> [time, Channel1, Channel2, 
 The channels 2 and 3 were recorded at x5 amplification so, the amplitude must be divided by 5.
 The total time of recording is was: 47 seconds
 """
-
+import pyqtgraph as pg
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
-
+from pyqtgraph.Qt import QtGui, QtCore
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
 t = data[:, 0]
@@ -25,15 +26,34 @@ plt.plot(t, ECG)
 plt.xlabel('Time (ms)')
 plt.ylabel('Amplitude')
 
-# Fourier transform Calculation
-"""ecg_fft = np.fft.fft(ECG)
-f = np.linspace(0, fs, len(ECG))  # Full spectrum frequency range
-plt.figure(2)
-plt.plot(f, 20 * np.log10(abs(ecg_fft)))
-plt.xlabel('Frequency (Hz)')
-plt.ylabel('Magnitude (dB)')
-plt.xscale('log')"""
 
+class Plot2D():
+    def __init__(self):
+        self.traces = dict()
+
+        # QtGui.QApplication.setGraphicsSystem('raster')
+        self.app = QtGui.QApplication([])
+        # mw = QtGui.QMainWindow()
+        # mw.resize(800,800)
+
+        self.win = pg.GraphicsWindow(title="Basic plotting examples")
+        self.win.resize(1000, 600)
+        self.win.setWindowTitle('pyqtgraph example: Plotting')
+
+        # Enable antialiasing for prettier plots
+        pg.setConfigOptions(antialias=True)
+
+        self.canvas = self.win.addPlot(title="Pytelemetry")
+
+    def start(self):
+        if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+            QtGui.QApplication.instance().exec_()
+
+    def trace(self, name, dataset_x, dataset_y):
+        if name in self.traces:
+            self.traces[name].setData(dataset_x, dataset_y)
+        else:
+            self.traces[name] = self.canvas.plot(pen='y')
 
 
 class RingBuffer:
@@ -46,6 +66,7 @@ class RingBuffer:
 
     def get(self):
         return self.data
+
 
 class FIR_filter(object):
     buffer = RingBuffer(200)
@@ -77,7 +98,7 @@ class FIR_filter(object):
     def dofilter(self, v):
         self.buffer.append(v)
         currentBuffer = self.buffer.get()
-        output = np.sum( currentBuffer[:] * self.FIRfilter[:])
+        output = np.sum(currentBuffer[:] * self.FIRfilter[:])
         if self.P == 200 - 1:
             self.P = 0
         if self.P < 200 - 1:
@@ -87,17 +108,24 @@ class FIR_filter(object):
         return output
 
 
+# ----------------- MAIN -----------------
 # Create an instance of an animated scrolling window
 # To plot more channels just create more instances and add callback handlers below
+p = Plot2D()
+f = FIR_filter(200, 1, 45, 55)  # Create the object FIR_filter initialising the filter
 
-f = FIR_filter(200, 1, 45, 55)
-y= np.empty(len(ECG))
-for i in range(len(ECG)):
-    y[i] = f.dofilter(ECG[i])
 
-plt.figure(2)
-plt.plot(y)
+def update():
+    y = np.empty(len(ECG))
+    for i in range(len(ECG)):
+        c = f.dofilter(ECG[i])
+        p.trace("cos", t, c)
+
+
+timer = QtCore.QTimer()
+# timer.timeout.connect(update)
+timer.start(50)
+p.start()
 plt.show()
-
 
 print('finished')

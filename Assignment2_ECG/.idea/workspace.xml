@@ -35,7 +35,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ecg_filter">
+  <component name="RunManager" selected="Python.try_FIR_PYQT">
+    <configuration name="ecg_filter-bufferclass-PYQT" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Assignment2_ECG" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ecg_filter-bufferclass-PYQT.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="ecg_filter" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -57,7 +78,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ecg_filter_06112019" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="try - copia" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -69,7 +90,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ecg_filter_06112019.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try - copia.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -78,7 +99,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ecg_filter_50_DC" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="try" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -86,11 +107,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="D:/##Universidad/##MSc Mechatronics/Digital Signal Processing/Filter Code" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="D:/##Universidad/##MSc Mechatronics/Digital Signal Processing/Filter Code/ecg_filter_50_DC.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -99,7 +120,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="prueba" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="try_FIR_PYQT" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -107,11 +128,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Desktop" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$USER_HOME$/Desktop/prueba.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try_FIR_PYQT.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -122,10 +143,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.try_FIR_PYQT" />
+        <item itemvalue="Python.ecg_filter-bufferclass-PYQT" />
+        <item itemvalue="Python.try - copia" />
+        <item itemvalue="Python.try" />
         <item itemvalue="Python.ecg_filter" />
-        <item itemvalue="Python.ecg_filter_50_DC" />
-        <item itemvalue="Python.ecg_filter_06112019" />
-        <item itemvalue="Python.prueba" />
       </list>
     </recent_temporary>
   </component>
