@@ -9,7 +9,7 @@ The total time of recording is was: 47 seconds
 """
 
 import numpy as np
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
@@ -70,7 +70,7 @@ class FIR_filter(object):
         return output
 
 
-class RealtimePlotWindow:
+"""class RealtimePlotWindow:
 
     def __init__(self):
         # create a plot window
@@ -103,17 +103,18 @@ class RealtimePlotWindow:
     # appends data to the ringbuffer
     def addData(self, v):
         self.ringbuffer.append(v)
-
+"""
 
 # Create an instance of an animated scrolling window
 # To plot more channels just create more instances and add callback handlers below
-realtimePlotWindow = RealtimePlotWindow()
+# realtimePlotWindow = RealtimePlotWindow()
 
 classfilter = FIR_filter(200, 1, 45, 500)
 for i in range(0, len(ECG)):
     ecgin = ECG[i]
     y = classfilter.dofilter(ecgin)
-    realtimePlotWindow.addData(y)
+    fig, ax = plt.subplots()
+    ani = animation.FuncAnimation(fig, y, np.arange(1, 20), interval=25)
 plt.show()
 
 print('finished')
