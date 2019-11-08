@@ -10,7 +10,7 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
-
+import scipy.signal as signal
 
 data = np.loadtxt("Gabriel_Brea_norm.dat")
 t = data[:, 0]
@@ -21,7 +21,6 @@ fs = 1000
 
 # Plot of Channel 1
 plt.figure(1)
-plt.subplot(211)
 plt.plot(t, ECG)
 plt.xlabel('Time (ms)')
 plt.ylabel('Amplitude')
@@ -39,16 +38,21 @@ plt.xscale('log')
 class FIR_filter(object):
     def __init__(self, h):
         self.Filter = h
-        self.Buffer = np.zeros(len(h))
+        self.Buffer = [0 for i in range(len(h))]
 
     def dofilter(self, v):
         resultFIR = 0
-        for j in range(len(self.Buffer) - 1, 0, -1):
-            self.Buffer[j] = self.Buffer[j - 1]  # buffer is used here to push input
-        self.Buffer[0] = v
+        self.appendbuffer(v)
         for j in range(len(self.Buffer)):
-            resultFIR += self.Filter[j] * self.Buffer[j]
+            resultFIR = resultFIR + self.Filter[j] * self.Buffer[j]
         return resultFIR
+
+    def appendbuffer(self, x):
+        self.Buffer.pop(0)
+        self.Buffer.append(x)
+
+    def getbuffer(self):
+        return self.Buffer
 
 
 f0 = 1
@@ -79,7 +83,6 @@ for i in range(len(ECG)):
     y[i] = myFIR.dofilter(ECG[i])
 
 
-plt.figure(1)
-plt.subplot(212)
+plt.figure(3)
 plt.plot(y)
 plt.show()

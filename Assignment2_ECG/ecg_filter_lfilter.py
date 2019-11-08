@@ -66,7 +66,7 @@ class FIR_filter(object):
         return y
 
 
-classfilter = FIR_filter(200, 1, 45, 500)
+classfilter = FIR_filter(200, 1, 45, 55)
 y = classfilter.dofilter()
 
 plt.figure(4)
