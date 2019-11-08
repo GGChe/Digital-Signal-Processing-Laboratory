@@ -42,7 +42,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ecg_filter">
+  <component name="RunManager" selected="Python.hr_detect">
     <configuration name="buff" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -127,7 +127,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="try" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="hr_detect" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -139,7 +139,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hr_detect.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -150,11 +150,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.hr_detect" />
         <item itemvalue="Python.ecg_filter" />
         <item itemvalue="Python.buff" />
         <item itemvalue="Python.ecg_filter_WORKING" />
         <item itemvalue="Python.ecg_filter_nobuffer" />
-        <item itemvalue="Python.try" />
       </list>
     </recent_temporary>
   </component>

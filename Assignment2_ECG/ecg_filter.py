@@ -82,4 +82,6 @@ for i in range(len(ECG)):
 plt.figure(1)
 plt.subplot(212)
 plt.plot(y)
+
+print("HELLO FROM ECG_FILTER!!!")
 plt.show()
