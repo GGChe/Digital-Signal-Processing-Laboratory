@@ -30,7 +30,7 @@ plt.ylabel('Amplitude')
 ecg_fft = np.fft.fft(myECG)
 f_axis = np.linspace(0, fs, len(myECG))  # Full spectrum frequency range
 plt.figure(2)
-plt.plot(f_axis[:int(len(f_axis)/2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_fft)/2)])))
+plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_fft) / 2)])))
 plt.title("Frequency Spectrum of the ECG signal")
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
@@ -60,6 +60,7 @@ class FIR_filter(object):
         return resultFIR
 
 
+# Define the frequencies for the FIR filter
 f0 = 1
 f1 = 45
 f2 = 55
@@ -90,6 +91,5 @@ for i in range(len(myECG)):
 plt.figure(1)
 plt.subplot(212)
 plt.plot(y)
-
 
 plt.show()
