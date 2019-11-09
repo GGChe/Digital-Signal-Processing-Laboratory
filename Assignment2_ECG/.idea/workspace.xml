@@ -42,7 +42,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.hr_detect">
+  <component name="RunManager" selected="Python.ecg_filter">
     <configuration name="buff" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -150,8 +150,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.hr_detect" />
         <item itemvalue="Python.ecg_filter" />
+        <item itemvalue="Python.hr_detect" />
         <item itemvalue="Python.buff" />
         <item itemvalue="Python.ecg_filter_WORKING" />
         <item itemvalue="Python.ecg_filter_nobuffer" />

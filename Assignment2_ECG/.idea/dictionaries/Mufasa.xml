@@ -7,8 +7,10 @@
       <w>ecgin</w>
       <w>ntaps</w>
       <w>plotbuffer</w>
+      <w>prefiltered</w>
       <w>rfilter</w>
       <w>rfrequency</w>
+      <w>storaged</w>
     </words>
   </dictionary>
 </component>

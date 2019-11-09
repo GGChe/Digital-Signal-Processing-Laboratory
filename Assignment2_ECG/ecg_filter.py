@@ -1,8 +1,8 @@
-#   Code for the Assignment 1 of Digital Signal Processing
-#   Authors: Gabriel Galeote-Checa & Anton Saikia
-
-
 """
+---------------------------------------------------------
+Code for the Assignment 1 of Digital Signal Processing
+Authors: Gabriel Galeote-Checa & Anton Saikia
+---------------------------------------------------------
 The input signal is a .dat file with four columns -> [time, Channel1, Channel2, Channel3]
 The channels 2 and 3 were recorded at x5 amplification so, the amplitude must be divided by 5.
 The total time of recording is was: 47 seconds
@@ -11,29 +11,38 @@ The total time of recording is was: 47 seconds
 import numpy as np
 import matplotlib.pylab as plt
 
+# Initialise the script
+dataFromECG = np.loadtxt("Gabriel_Brea_norm.dat")
+time = dataFromECG[:, 0]
+myECG = dataFromECG[:, 1]
+fs = 1000  # 1000 Hz sampling rate
 
-data = np.loadtxt("Gabriel_Brea_norm.dat")
-t = data[:, 0]
-ECG = data[:, 1]
-
-# 1000 Hz sampling rate
-fs = 1000
-
-# Plot of Channel 1
+# Plot the ECG prefiltered
 plt.figure(1)
 plt.subplot(211)
-plt.plot(t, ECG)
+plt.plot(time, myECG)
+plt.title("ECG Prefiltered")
 plt.xlabel('Time (ms)')
 plt.ylabel('Amplitude')
 
-# Fourier transform Calculation
-ecg_fft = np.fft.fft(ECG)
-f = np.linspace(0, fs, len(ECG))  # Full spectrum frequency range
+# Fourier transform of the ECG to analyse the frequency spectrum
+# However, only the first half of the frequency spectrum is shown as the other half is mirrored.
+ecg_fft = np.fft.fft(myECG)
+f_axis = np.linspace(0, fs, len(myECG))  # Full spectrum frequency range
 plt.figure(2)
-plt.plot(f, 20 * np.log10(abs(ecg_fft)))
+plt.plot(f_axis[:int(len(f_axis)/2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_fft)/2)])))
+plt.title("Frequency Spectrum of the ECG signal")
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
-plt.xscale('log')
+
+"""
+
+This class calculate the result of the FIR filter for a given value. The class function dofilter(input) 
+introduces the given value of the signal in the buffer in the current position after a proper management of the 
+buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer storaged that was 
+previously shifted to put in the first position the current input value. 
+
+"""
 
 
 class FIR_filter(object):
@@ -74,14 +83,13 @@ FIR_shifted[0:int(ntaps / 2)] = h_real[int(ntaps / 2):ntaps]
 FIR_shifted[int(ntaps / 2):ntaps] = h_real[0:int(ntaps / 2)]
 
 myFIR = FIR_filter(FIR_shifted)
-y = np.zeros(len(ECG))
-for i in range(len(ECG)):
-    y[i] = myFIR.dofilter(ECG[i])
-
+y = np.zeros(len(myECG))
+for i in range(len(myECG)):
+    y[i] = myFIR.dofilter(myECG[i])
 
 plt.figure(1)
 plt.subplot(212)
 plt.plot(y)
 
-print("HELLO FROM ECG_FILTER!!!")
+
 plt.show()
