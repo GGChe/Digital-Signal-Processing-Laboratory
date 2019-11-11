@@ -4,10 +4,14 @@
       <w>classfilter</w>
       <w>coeff</w>
       <w>dataset</w>
+      <w>dodetect</w>
       <w>ecgin</w>
+      <w>mylist</w>
+      <w>mytemplate</w>
       <w>ntaps</w>
       <w>plotbuffer</w>
       <w>prefiltered</w>
+      <w>rdetect</w>
       <w>rfilter</w>
       <w>rfrequency</w>
       <w>storaged</w>

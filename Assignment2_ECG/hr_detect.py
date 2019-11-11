@@ -1,14 +1,16 @@
 import numpy as np
 import matplotlib.pylab as plt
+from scipy.signal import find_peaks
 
 # Initialise the script
 dataFromECG = np.loadtxt("Gabriel_Brea_norm.dat")
-time = dataFromECG[10000:20000, 0]
-myECG = dataFromECG[10000:20000, 1]
+time = dataFromECG[:, 0]
+myECG = dataFromECG[:, 1]
 fs = 1000  # 1000 Hz sampling rate
 
 plt.figure(1)
-plt.plot(time, myECG)
+plt.subplot(211)
+plt.plot(myECG)
 
 
 class FIR_filter(object):
@@ -30,10 +32,13 @@ class FIR_filter(object):
 The class HR_detect inheritates the class FIR_filter. Thus, we can use the functions and class attributes for the 
 inherited class as HR_detect is an extension of FIR_filter.
 """
+
+
 class matched_filter(FIR_filter):
     """
     :parameter coefffir: coefficients of the FIR filter that is going to be applied to the signal.
     """
+
     def __init__(self, coeff_fir):
         h = FIR_filter(coeff_fir)
         self.ECG_processed = np.zeros(len(myECG))
@@ -43,6 +48,7 @@ class matched_filter(FIR_filter):
         """
         :parameter template: is the template which is desired to be calculated from the signal. 
         """
+
     def detection(self, mytemplate):
         fir_coeff = mytemplate[::-1]
         detected_array = np.zeros(len(myECG))
@@ -52,19 +58,63 @@ class matched_filter(FIR_filter):
         detected_output = detected_array * detected_array
         return detected_output
 
-class TemplateMaker(object):
+
+class TemplateMaker:
     def __init__(self):
         self
 
     def mexicanhat(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = (2/np.sqrt(3*35)*np.pi**(1/4)) * (1 - (t**2/35**2)) * np.exp((-t**2)/(2*35**2))
+        mytemplate = (2 / np.sqrt(3 * 35) * np.pi ** (1 / 4)) * (1 - (t ** 2 / 35 ** 2)) * np.exp(
+            (-t ** 2) / (2 * 35 ** 2))
         return mytemplate
+
     def gaussian(self):
         t = np.linspace(-250, 250, 500)
-        myTemplate = -t * np.exp((-t**2)/50) / (125 * np.sqrt(2*np.pi))
-        return myTemplate
+        mytemplate = -t * np.exp((-t ** 2) / 50) / (125 * np.sqrt(2 * np.pi))
+        return mytemplate
 
+
+class detectBeats:
+    def __init__(self, inputECG):
+        self.ecg = inputECG
+        self.threshold = np.max(inputECG) * 0.01
+
+        """
+        :parameter No input parameters
+        :return this function returns: 1) An array of zeros with the length of the inputECG with ones on the peaks and
+        2) An integer with the number of beats in the ECG provided.
+        """
+
+    def dodetectBeats(self):
+        peaksList = np.zeros(len(self.ecg))
+        for i in range(len(self.ecg)):
+            if self.ecg[i] > self.threshold:
+                peaksList[i] = 1
+        peaks, _ = find_peaks(peaksList, distance=150)
+        numberOfPeaks = len(peaks)
+        return peaksList, numberOfPeaks
+
+
+class MomentaryHeartRateDetector:
+
+    def __init__(self, inputList):
+        self.myList = inputList
+
+    def MHRdetect(self):
+        listOfBeats = self.myList  # Output from Matched filter
+        BPM = []  # It will be the array of Peaks
+        aux = 0  # auxiliary counter
+        threshold = 0.5
+        for i in range(len(listOfBeats)):
+            if listOfBeats[i] > threshold:
+                dt = (i - aux)  # difference in time in second
+                aux = i
+                bpm = 1 / dt * 60000  # BPS to BPM
+                if 200 > bpm > 30:  # 200bpm to 30bpm as filter
+                    BPM.append(bpm)  # append means plus
+        BPM = np.delete(BPM, 0)
+        return BPM
 
 
 # Define the frequencies for the FIR filter
@@ -90,22 +140,26 @@ FIR_shifted = np.zeros(ntaps)
 FIR_shifted[0:int(ntaps / 2)] = h_real[int(ntaps / 2):ntaps]
 FIR_shifted[int(ntaps / 2):ntaps] = h_real[0:int(ntaps / 2)]
 
-
 myTemplate = TemplateMaker()
 template = myTemplate.gaussian()
 plt.plot(template)
 detectionOfHeartBeat = matched_filter(FIR_shifted)
 det2 = detectionOfHeartBeat.detection(template)
 
-plt.figure(2)
+beatDetect = detectBeats(det2)
+listOfDetectedBeats, peaksOfHeartBeats = beatDetect.dodetectBeats()
+
+MomentaryHeartRate = MomentaryHeartRateDetector(listOfDetectedBeats)
+MHR = MomentaryHeartRate.MHRdetect()
+
+plt.figure(1)
+plt.subplot(212)
 plt.plot(time, det2)
+
+plt.figure(3)
+plt.plot(listOfDetectedBeats)
+
+plt.figure(4)
+plt.plot(MHR)
+
 plt.show()
-
-
-
-
-
-
-
-
-
