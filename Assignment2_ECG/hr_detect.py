@@ -95,12 +95,17 @@ class detectBeats:
         numberOfPeaks = len(peaks)
         return peaksList, numberOfPeaks
 
-
+"""
+This class calulates the momentary heart rate of an ECG signal provided in the constructor
+:parameter inputList: is the input ECG signal preprocessed
+"""
 class MomentaryHeartRateDetector:
 
     def __init__(self, inputList):
         self.myList = inputList
-
+    """
+    :return It returns the list of the momentary heart rate calculations in the ECG signal.
+    """
     def MHRdetect(self):
         listOfBeats = self.myList  # Output from Matched filter
         BPM = []  # It will be the array of Peaks
