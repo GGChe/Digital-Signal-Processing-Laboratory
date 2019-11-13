@@ -1,0 +1,25 @@
+    def mexicanhat(self):
+        t = np.linspace(-250, 250, 500)
+        mytemplate = (2 / np.sqrt(3 * 35) * np.pi ** (1 / 4)) * (1 - (t ** 2 / 35 ** 2)) * np.exp(
+            (-t ** 2) / (2 * 35 ** 2))
+        return mytemplate
+
+    def gaussian1OD(self):
+        t = np.linspace(-250, 250, 500)
+        mytemplate = -t * np.exp((-t ** 2) / 50) / (125 * np.sqrt(2 * np.pi))
+        return mytemplate
+    
+    def gaussian(self):
+        t = np.linspace(-250, 250, 500)
+        mytemplate = np.exp((-t ** 2) / 50) / (5 * np.sqrt(2 * np.pi))
+        return mytemplate
+
+    def morlet(self):
+        t = np.linspace(-250, 250, 500)
+        mytemplate = np.exp(2*1j*t*np.pi*32)*np.exp((-t ** 2) / 70) / (np.sqrt(70 * np.pi))
+        return mytemplate
+    
+    def shannon(self):
+        t = np.linspace(-250, 250, 500)
+        mytemplate = np.sqrt(100)*np.sinc(100*t)*np.exp(2*1j*t*np.pi*4)
+        return mytemplate
