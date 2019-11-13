@@ -21,8 +21,7 @@ fs = 1000  # 1000 Hz sampling rate
 plt.figure(1)
 plt.subplot(211)
 plt.plot(time, myECG)
-plt.title("ECG Prefiltered")
-plt.xlabel('Time (ms)')
+plt.title("(TOP) ECG Pre-filtered; (BOTTOM) ECG Filtered")
 plt.ylabel('Amplitude')
 
 # Fourier transform of the ECG to analyse the frequency spectrum
@@ -32,8 +31,7 @@ f_axis = np.linspace(0, fs, len(myECG))  # Full spectrum frequency range
 plt.figure(2)
 plt.subplot(211)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_fft) / 2)])))
-plt.title("Frequency Spectrum of the ECG signal")
-plt.xlabel('Frequency (Hz)')
+plt.title("Frequency Spectrum of (TOP) Original ECG signal; (BOTTOM) Filtered ECG signal")
 plt.ylabel('Magnitude (dB)')
 
 """
@@ -49,14 +47,20 @@ class FIR_filter(object):
         self.Filter = h
         self.Buffer = np.zeros(len(h))
 
+    """
+    The function dofilter calculate the output of the FIRFilter to the ECG signal provided.
+    For the implementation of the FIR, a buffer must be created to storage the input coefficients of the ECG signal in 
+    the correct position. The buffer goes from the last value of it to the initial value increasing by -1 every step 
+    so that the array does not needs to be inverted.
+    """
     def dofilter(self, v):
-        resultFIR = 0
-        for j in range(len(self.Buffer) - 1, 0, -1):
-            self.Buffer[j] = self.Buffer[j - 1]  # buffer is used here to push input
+        FIR_result = 0
+        for i in range(len(self.Buffer) - 1, 0, -1):
+            self.Buffer[i] = self.Buffer[i - 1]  # Pushed all the buffer
         self.Buffer[0] = v
-        for j in range(len(self.Buffer)):
-            resultFIR += self.Filter[j] * self.Buffer[j]
-        return resultFIR
+        for i in range(len(self.Buffer)):
+            FIR_result += self.Filter[i] * self.Buffer[i]
+        return FIR_result
 
 
 # Define the frequencies for the FIR filter
@@ -89,11 +93,15 @@ for i in range(len(myECG)):
 
 plt.figure(1)
 plt.subplot(212)
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
 plt.plot(y)
 
 yfft = np.fft.fft(y)
 plt.figure(2)
 plt.subplot(212)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(yfft[:int(len(ecg_fft) / 2)])))
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude (dB)')
 
 plt.show()
