@@ -30,18 +30,17 @@ plt.ylabel('Amplitude')
 ecg_fft = np.fft.fft(myECG)
 f_axis = np.linspace(0, fs, len(myECG))  # Full spectrum frequency range
 plt.figure(2)
+plt.subplot(211)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_fft) / 2)])))
 plt.title("Frequency Spectrum of the ECG signal")
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
 
 """
-
 This class calculate the result of the FIR filter for a given value. The class function dofilter(input) 
 introduces the given value of the signal in the buffer in the current position after a proper management of the 
 buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer storaged that was 
 previously shifted to put in the first position the current input value. 
-
 """
 
 
@@ -91,5 +90,10 @@ for i in range(len(myECG)):
 plt.figure(1)
 plt.subplot(212)
 plt.plot(y)
+
+yfft = np.fft.fft(y)
+plt.figure(2)
+plt.subplot(212)
+plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(yfft[:int(len(ecg_fft) / 2)])))
 
 plt.show()
