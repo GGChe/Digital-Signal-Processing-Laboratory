@@ -37,7 +37,7 @@ plt.ylabel('Magnitude (dB)')
 """
 This class calculate the result of the FIR filter for a given value. The class function dofilter(input) 
 introduces the given value of the signal in the buffer in the current position after a proper management of the 
-buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer storaged that was 
+buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer stored that was 
 previously shifted to put in the first position the current input value. 
 """
 
