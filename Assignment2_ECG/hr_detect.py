@@ -159,7 +159,7 @@ For the matching filter 4 templates will be created and tested:
 1) Gaussian
 2) Gaussian Derivative  1st Order
 3) Shannon
-4) Morlet Template
+4) Mexican Hat
 """
 myTemplate = TemplateMaker()  # Create the class TemplateMaker
 
