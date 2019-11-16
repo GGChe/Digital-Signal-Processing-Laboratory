@@ -13,6 +13,7 @@ dataFromECG = np.loadtxt("Gabriel_Brea_norm.dat")
 time = dataFromECG[10000:40000, 0]
 myECG = dataFromECG[10000:40000, 1]
 fs = 1000  # 1000 Hz sampling rate
+ntaps = 500
 
 # -- Plot ECG in time domain -- #
 plt.figure(1)
@@ -22,39 +23,55 @@ plt.title("(TOP) ECG Pre-filtered; (BOTTOM) ECG Filtered with Match Filter")
 plt.ylabel('Amplitude')
 
 """
-FIR_Filter class that applies the FIR filter to a signal.
+---------- FIR FILTER ----------
+ 
+FIR_Filter class that applies the FIR filter to an input signal.
 
-Parameters:
-Filter: FIR filter that is introduced from outside.
-Buffer: Storage the delay values for the application of the FIR filter
+This class calculate the result of the FIR filter for a given value. The class function dofilter(input) 
+introduces the given value of the signal in the buffer in the current position after a proper management of the 
+buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer storaged that was 
+previously shifted to put in the first position the current input value. 
 """
-
-
-class FIR_filter(object):
-    def __init__(self, h):
-        self.Filter = h
-        self.Buffer = np.zeros(len(h))
+class FIR_filter:
+    def __init__(self, inpurFIR):
+        self.offset = 0
+        self.P = 0
+        self.coeval = 0
+        self.Buffer = np.zeros(ntaps)
+        self.myFIR = inpurFIR
 
     def dofilter(self, v):
-        FIR_result = 0
-        """
-        The buffer goes from the last value of it to the initial value increasing by -1
-        every step so that the array does not needs to be inverted.
-        """
-        for i in range(len(self.Buffer) - 1, 0, -1):
-            self.Buffer[i] = self.Buffer[i - 1]  # Pushed all the buffer
-        self.Buffer[0] = v
-        for i in range(len(self.Buffer)):
-            FIR_result += self.Filter[i] * self.Buffer[i]
-        return FIR_result
+        ResultFIR = 0
+        self.CurrentBufferValue = self.P + self.offset
+        self.Buffer[self.CurrentBufferValue] = v
+        while self.CurrentBufferValue >= self.P:
+            ResultFIR = ResultFIR + (self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval])
+            self.CurrentBufferValue = self.CurrentBufferValue - 1
+            self.coeval = self.coeval + 1
+
+        self.CurrentBufferValue = self.P + ntaps - 1
+
+        while self.coeval < ntaps:
+            ResultFIR = ResultFIR + (self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval])
+            # print(ResultFIR)
+            self.CurrentBufferValue = self.CurrentBufferValue - 1
+            self.coeval = self.coeval + 1
+
+        self.offset = self.offset + 1
+
+        if self.offset >= ntaps:
+            self.offset = 0
+
+        self.coeval = 0
+        return ResultFIR
 
 
 """
-Matched Filter Class: Inherited from FIR_filter as a super class, it does the matched filtering 
-of the input ECG for the template given.
+---------- MATCH FILTER ----------
+
+Inherited from FIR_filter, it receives the class attributes, functions and methods from the superclass.
+This class calculates match filtering of an input signal.
 """
-
-
 class matched_filter(FIR_filter):
     def __init__(self, inputecg):
         self.inputECG = inputecg
@@ -70,10 +87,10 @@ class matched_filter(FIR_filter):
 
 
 """
-TemplateMaker class: This class has different methods for calculating different templates for the match filter
+---------- TEMPLATE MAKER ----------
+
+This class has different methods for calculating different templates for the match filter.
 """
-
-
 class TemplateMaker:
     def __init__(self):
         self
@@ -101,11 +118,11 @@ class TemplateMaker:
 
 
 """
+---------- MOMENTARY HEART RATE DETECTOR ----------
+
 MomentaryHeartRateDetector class: From an input ECG signal, the method MRHdetect calculates the momentary heart rate  
 of the ECG signal. 
 """
-
-
 class MomentaryHeartRateDetector:
     def __init__(self, inputlist):
         self.myList = inputlist
@@ -130,7 +147,6 @@ class MomentaryHeartRateDetector:
 f0 = 1
 f1 = 45
 f2 = 55
-ntaps = 200
 
 FIRfrequencyResponse = np.ones(ntaps)
 # Limits for the filtering
@@ -153,13 +169,14 @@ ECG_processed = np.zeros(len(myECG))
 FIR = FIR_filter(FIR_shifted)
 for j in range(len(myECG)):
     ECG_processed[j] = FIR.dofilter(myECG[j])
+
 """ 
 ----- MATCHED FILTER ----- 
 For the matching filter 4 templates will be created and tested: 
 1) Gaussian
 2) Gaussian Derivative  1st Order
 3) Shannon
-4) Morlet Template
+4) Mexican Hat
 """
 myTemplate = TemplateMaker()  # Create the class TemplateMaker
 
@@ -186,7 +203,6 @@ MomentaryHeartRateMexicanHat = MomentaryHeartRateDetector(detmexicanHat)
 MHRGaussian = MomentaryHeartRateGaussian.MHRdetect()
 MHRGaussian1OD = MomentaryHeartRateGaussian1OD.MHRdetect()
 MHRShannon = MomentaryHeartRateShannon.MHRdetect()
-
 MHRMexicanHat = MomentaryHeartRateMexicanHat.MHRdetect()
 
 plt.figure(1)
@@ -194,6 +210,23 @@ plt.subplot(212)
 plt.plot(time, det1ODgaussian)
 
 plt.figure(2)
+plt.subplot(221)
+plt.plot(detgaussian)
+plt.title("Gaussian")
+
+plt.subplot(222)
+plt.plot(det1ODgaussian)
+plt.title("Gaussian 1st Order Derivative")
+
+plt.subplot(223)
+plt.plot(detshannon)
+plt.title("Shannon")
+
+plt.subplot(224)
+plt.plot(detmexicanHat)
+plt.title("Mexican Hat")
+
+plt.figure(3)
 plt.subplot(221)
 plt.plot(MHRGaussian)
 plt.title("Gaussian")

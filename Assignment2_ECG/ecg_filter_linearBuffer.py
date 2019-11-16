@@ -12,12 +12,10 @@ import numpy as np
 import matplotlib.pylab as plt
 
 # Initialise the script
-# Chosen the interval 10,000-40,000 that are 20 seconds due to fs = 1000.
 dataFromECG = np.loadtxt("Gabriel_Brea_norm.dat")
-time = dataFromECG[10000:40000, 0]
-myECG = dataFromECG[10000:40000, 1]
+time = dataFromECG[:, 0]
+myECG = dataFromECG[:, 1]
 fs = 1000  # 1000 Hz sampling rate
-ntaps = 500
 
 # Plot the ECG prefiltered
 plt.figure(1)
@@ -36,53 +34,40 @@ plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_f
 plt.title("Frequency Spectrum of (TOP) Original ECG signal; (BOTTOM) Filtered ECG signal")
 plt.ylabel('Magnitude (dB)')
 
-
 """
-FIR_Filter class that applies the FIR filter to an input signal.
-
 This class calculate the result of the FIR filter for a given value. The class function dofilter(input) 
 introduces the given value of the signal in the buffer in the current position after a proper management of the 
 buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer storaged that was 
 previously shifted to put in the first position the current input value. 
 """
-class FIR_filter:
-    def __init__(self, inpurFIR):
-        self.offset = 0
-        self.P = 0
-        self.coeval = 0
-        self.Buffer = np.zeros(ntaps)
-        self.myFIR = inpurFIR
 
+
+class FIR_filter(object):
+    def __init__(self, h):
+        self.Filter = h
+        self.Buffer = np.zeros(len(h))
+
+    """
+    The function dofilter calculate the output of the FIRFilter to the ECG signal provided.
+    For the implementation of the FIR, a buffer must be created to storage the input coefficients of the ECG signal in 
+    the correct position. The buffer goes from the last value of it to the initial value increasing by -1 every step 
+    so that the array does not needs to be inverted.
+    """
     def dofilter(self, v):
-        ResultFIR = 0
-        self.CurrentBufferValue = self.P + self.offset
-        self.Buffer[self.CurrentBufferValue] = v
-        while self.CurrentBufferValue >= self.P:
-            ResultFIR = ResultFIR + (self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval])
-            self.CurrentBufferValue = self.CurrentBufferValue - 1
-            self.coeval = self.coeval + 1
-
-        self.CurrentBufferValue = self.P + ntaps - 1
-
-        while self.coeval < ntaps:
-            ResultFIR = ResultFIR + (self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval])
-            # print(ResultFIR)
-            self.CurrentBufferValue = self.CurrentBufferValue - 1
-            self.coeval = self.coeval + 1
-
-        self.offset = self.offset + 1
-
-        if self.offset >= ntaps:
-            self.offset = 0
-
-        self.coeval = 0
-        return ResultFIR
+        FIR_result = 0
+        for i in range(len(self.Buffer) - 1, 0, -1):
+            self.Buffer[i] = self.Buffer[i - 1]  # Pushed all the buffer
+        self.Buffer[0] = v
+        for i in range(len(self.Buffer)):
+            FIR_result += self.Filter[i] * self.Buffer[i]
+        return FIR_result
 
 
 # Define the frequencies for the FIR filter
 f0 = 1
 f1 = 45
 f2 = 55
+ntaps = 200
 
 FIRfrequencyResponse = np.ones(ntaps)
 # Limits for the filtering
