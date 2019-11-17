@@ -78,19 +78,66 @@ class FIR_filter:
 Inherited from FIR_filter, it receives the class attributes, functions and methods from the superclass.
 This class calculates match filtering of an input signal.
 """
-class matched_filter(FIR_filter):
+class ECG_matchedfilter:
     def __init__(self, inputecg):
-        self.inputECG = inputecg
+        fs = 1000
+        # fsr = 0.5
+        self.M = 800
+        self.fs = fs
+        self.offset = 0
+        self.buffer = 0
+        self.coeval = 0
+        self.htic = np.zeros(self.M)
 
-    def detection(self, mytemplate):
-        fir_coeff = mytemplate[::-1]
-        y = np.zeros(len(myECG))
-        templateFIR = FIR_filter(fir_coeff)
-        for i in range(len(myECG)):
-            y[i] = templateFIR.dofilter(self.inputECG[i])
-        detected_output = y * y  # The signal is squared to improve the output
-        return detected_output
+        self.x3 = inputecg
 
+        # self.x3 is filtered from 50 Hz and DC
+        # need to decide on the template
+
+
+    def detection(self, template):
+        self.xtemplate = template
+        self.y = np.zeros(len(self.x3))
+        i = 0
+        for inputVal in self.x3:
+            self.filterco = self.xtemplate[::-1]
+
+            self.buf_val = self.buffer + self.offset
+            self.htic[self.buf_val] = inputVal
+            outputVal = 0
+
+            while (self.buf_val >= self.buffer):
+                outputVal = outputVal + (self.htic[self.buf_val] * self.filterco[self.coeval])
+                self.buf_val = self.buf_val - 1
+                self.coeval = self.coeval + 1
+
+            self.buf_val = self.buffer + self.M - 1
+
+            while (self.coeval < self.M):
+                outputVal = outputVal + (self.htic[self.buf_val] * self.filterco[self.coeval])
+                # print(outputVal)
+                self.buf_val = self.buf_val - 1
+                self.coeval = self.coeval + 1
+
+            self.offset = self.offset + 1
+            if (self.offset >= self.M):
+                self.offset = 0
+
+            self.coeval = 0
+
+            self.y[i] = outputVal
+            i = i + 1
+        self.y2 = self.y * self.y
+
+        return self.y2
+
+    def plot(self):
+
+        # plot matched peaks
+        plt.show()
+        plt.plot(self.y2)
+        plt.title("matched peaks output")
+        plt.show()
 
 """
 ---------- TEMPLATE MAKER ----------
@@ -193,7 +240,7 @@ shannon = myTemplate.shannon()
 mexicanHat = myTemplate.mexicanhat()
 
 # Matching Filtering of the signal
-detectionOfHeartBeat = matched_filter(ECG_processed)
+detectionOfHeartBeat = ECG_matchedfilter(ECG_processed)
 detgaussian = detectionOfHeartBeat.detection(gaussian)
 det1ODgaussian = detectionOfHeartBeat.detection(devgaussian)
 detshannon = detectionOfHeartBeat.detection(shannon)

@@ -10,6 +10,9 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
+from timeit import default_timer as timer
+
+start = timer()
 
 # Initialise the script
 # Chosen the interval 10,000-40,000 that are 20 seconds due to fs = 1000.
@@ -54,23 +57,24 @@ class FIR_filter:
         self.myFIR = inpurFIR
 
     def dofilter(self, v):
+
         ResultFIR = 0
         self.CurrentBufferValue = self.P + self.offset
         self.Buffer[self.CurrentBufferValue] = v
+
         while self.CurrentBufferValue >= self.P:
-            ResultFIR = ResultFIR + (self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval])
-            self.CurrentBufferValue = self.CurrentBufferValue - 1
-            self.coeval = self.coeval + 1
+            ResultFIR += self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval]
+            self.CurrentBufferValue -= 1
+            self.coeval += 1
 
         self.CurrentBufferValue = self.P + ntaps - 1
 
         while self.coeval < ntaps:
-            ResultFIR = ResultFIR + (self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval])
-            # print(ResultFIR)
-            self.CurrentBufferValue = self.CurrentBufferValue - 1
-            self.coeval = self.coeval + 1
+            ResultFIR += self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval]
+            self.CurrentBufferValue -= 1
+            self.coeval += 1
 
-        self.offset = self.offset + 1
+        self.offset += 1
 
         if self.offset >= ntaps:
             self.offset = 0
@@ -119,4 +123,8 @@ plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(yfft[:int(len(ecg_fft)
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
 
+end = timer()
+print(end - start)
+
 plt.show()
+

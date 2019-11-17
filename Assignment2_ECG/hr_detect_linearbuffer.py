@@ -35,42 +35,25 @@ introduces the given value of the signal in the buffer in the current position a
 buffer shifting. Then, it is calculated the mathematical result of FIR filter of the buffer storaged that was 
 previously shifted to put in the first position the current input value. 
 """
-
-
-class FIR_filter:
-    def __init__(self, inpurFIR):
-        self.offset = 0
-        self.P = 0
-        self.coeval = 0
+class FIR_filter(object):
+    def __init__(self, h):
+        self.Filter = h
         self.Buffer = np.zeros(ntaps)
-        self.myFIR = inpurFIR
 
+    """
+    The function dofilter calculate the output of the FIRFilter to the ECG signal provided.
+    For the implementation of the FIR, a buffer must be created to storage the input coefficients of the ECG signal in 
+    the correct position. The buffer goes from the last value of it to the initial value increasing by -1 every step 
+    so that the array does not needs to be inverted.
+    """
     def dofilter(self, v):
-
-        ResultFIR = 0
-        self.CurrentBufferValue = self.P + self.offset
-        self.Buffer[self.CurrentBufferValue] = v
-
-        while self.CurrentBufferValue >= self.P:
-            ResultFIR += self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval]
-            self.CurrentBufferValue -= 1
-            self.coeval += 1
-
-        self.CurrentBufferValue = self.P + ntaps - 1
-
-        while self.coeval < ntaps:
-            ResultFIR += self.Buffer[self.CurrentBufferValue] * self.myFIR[self.coeval]
-            self.CurrentBufferValue -= 1
-            self.coeval += 1
-
-        self.offset += 1
-
-        if self.offset >= ntaps:
-            self.offset = 0
-
-        self.coeval = 0
-        return ResultFIR
-
+        FIR_result = 0
+        for i in range(len(self.Buffer) - 1, 0, -1):
+            self.Buffer[i] = self.Buffer[i - 1]  # Pushed all the buffer
+        self.Buffer[0] = v
+        for i in range(len(self.Buffer)):
+            FIR_result += self.Filter[i] * self.Buffer[i]
+        return FIR_result
 
 """
 ---------- MATCH FILTER ----------
@@ -84,11 +67,11 @@ class matched_filter(FIR_filter):
 
     def detection(self, mytemplate):
         fir_coeff = mytemplate[::-1]
-        y = np.zeros(len(myECG))
+        detected_array = np.zeros(len(myECG))
         templateFIR = FIR_filter(fir_coeff)
-        for i in range(len(myECG)):
-            y[i] = templateFIR.dofilter(self.inputECG[i])
-        detected_output = y * y  # The signal is squared to improve the output
+        for j in range(len(time)):
+            detected_array[j] = templateFIR.dofilter(self.inputECG[j])
+        detected_output = detected_array * detected_array  # The signal is squared to improve the output
         return detected_output
 
 
@@ -250,8 +233,8 @@ plt.plot(MHRMexicanHat)
 plt.title("Mexican Hat")
 
 print("Execution finished!")
-
+# ------------
 end = timer()
 print(end - start)
-
+# -------------
 plt.show()
