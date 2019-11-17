@@ -13,7 +13,7 @@ import matplotlib.pylab as plt
 
 # Initialise the script
 # Chosen the interval 10,000-40,000 that are 20 seconds due to fs = 1000.
-dataFromECG = np.loadtxt("Gabriel_Brea_norm.dat")
+dataFromECG = np.loadtxt("ecg1.dat")
 time = dataFromECG[10000:40000, 0]
 myECG = dataFromECG[10000:40000, 1]
 fs = 1000  # 1000 Hz sampling rate

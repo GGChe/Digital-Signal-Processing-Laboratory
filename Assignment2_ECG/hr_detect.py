@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pylab as plt
 
 # Initialise the script
-dataFromECG = np.loadtxt("Gabriel_Brea_fast.dat")
+dataFromECG = np.loadtxt("ecg2.dat")
 time = dataFromECG[10000:40000, 0]
 myECG = dataFromECG[10000:40000, 1]
 fs = 1000  # 1000 Hz sampling rate
