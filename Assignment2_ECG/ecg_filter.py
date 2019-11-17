@@ -121,10 +121,4 @@ plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
 plt.savefig('ECG_filter_Fig_2.eps', format='eps')
 
-
-plt.figure(5)
-plt.plot(y)
-plt.title("Filtered ECG Signal")
-plt.xlabel("Time (s)")
-plt.ylabel("Amplitude")
 plt.show()
