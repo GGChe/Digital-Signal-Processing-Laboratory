@@ -211,7 +211,9 @@ MHRMexicanHat = MomentaryHeartRateMexicanHat.MHRdetect()
 
 plt.figure(1)
 plt.subplot(212)
-plt.plot(time, det1ODgaussian)
+plt.plot(det1ODgaussian)
+plt.xlabel("Time (s)")
+plt.ylim("Amplitude")
 plt.savefig('HR_detect_Fig_1.eps', format='eps')
 
 plt.figure(2)
