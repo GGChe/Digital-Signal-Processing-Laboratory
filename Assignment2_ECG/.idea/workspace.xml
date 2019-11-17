@@ -47,7 +47,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ecg_filter - copia">
+  <component name="RunManager" selected="Python.hr_detect">
     <configuration name="ecg_filter - copia" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Assignment2_ECG" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -155,11 +155,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.hr_detect" />
+        <item itemvalue="Python.ecg_filter" />
         <item itemvalue="Python.ecg_filter - copia" />
         <item itemvalue="Python.hr_detect - copia" />
         <item itemvalue="Python.hr_detect_linearbuffer" />
-        <item itemvalue="Python.hr_detect" />
-        <item itemvalue="Python.ecg_filter" />
       </list>
     </recent_temporary>
   </component>

@@ -10,9 +10,7 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
-from timeit import default_timer as timer
-
-start = timer()
+plt.rcParams.update({'font.size': 16})
 
 # Initialise the script
 # Chosen the interval 10,000-40,000 that are 20 seconds due to fs = 1000.
@@ -115,6 +113,7 @@ plt.subplot(212)
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude")
 plt.plot(y)
+plt.savefig('ECG_filter_Fig_1.eps', format='eps')
 
 yfft = np.fft.fft(y)
 plt.figure(2)
@@ -122,9 +121,13 @@ plt.subplot(212)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(yfft[:int(len(ecg_fft) / 2)])))
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude (dB)')
+plt.savefig('ECG_filter_Fig_2.eps', format='eps')
 
-end = timer()
-print(end - start)
 
+plt.figure(5)
+plt.plot(y)
+plt.title("Filtered ECG Signal")
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
 plt.show()
 

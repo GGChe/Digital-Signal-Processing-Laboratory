@@ -7,12 +7,10 @@ Second part of the ECG filtering that consists of Heart Rate Detection by using 
 """
 import numpy as np
 import matplotlib.pylab as plt
-from timeit import default_timer as timer
-
-start = timer()
+plt.rcParams.update({'font.size': 18})
 
 # Initialise the script
-dataFromECG = np.loadtxt("Gabriel_Brea_norm.dat")
+dataFromECG = np.loadtxt("Gabriel_Brea_fast.dat")
 time = dataFromECG[10000:40000, 0]
 myECG = dataFromECG[10000:40000, 1]
 fs = 1000  # 1000 Hz sampling rate
@@ -103,23 +101,23 @@ class TemplateMaker:
 
     def mexicanhat(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = (2 / np.sqrt(3 * 35) * np.pi ** (1 / 4)) * \
-                     (1 - (t ** 2 / 35 ** 2)) * np.exp((-t ** 2) / (2 * 35 ** 2))
+        mytemplate = 0.9*(2 / np.sqrt(3 * 17) * np.pi ** (1 / 4)) * (1 - (t ** 2 / 17 ** 2)) \
+                     * np.exp((-t ** 2) / (2 * 17 ** 2))
         return mytemplate
 
     def gaussian1OD(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = -t * np.exp((-t ** 2) / 50) / (125 * np.sqrt(2 * np.pi))
+        mytemplate = -3.25*t * np.exp((-t ** 2) / 50) / (125 * np.sqrt(2 * np.pi))
         return mytemplate
 
     def gaussian(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = np.exp((-t ** 2) / 50) / (5 * np.sqrt(2 * np.pi))
+        mytemplate = 3.75*np.exp((-t ** 2) / 50) / (5 * np.sqrt(2 * np.pi))
         return mytemplate
 
     def shannon(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = np.sqrt(100) * np.sinc(100 * t) * np.exp(2 * 1j * t * np.pi * 4)
+        mytemplate = 15*np.sqrt(100)*np.sinc(100*t)*np.exp(2*1j*t*np.pi*4)
         return mytemplate
 
 
@@ -214,6 +212,7 @@ MHRMexicanHat = MomentaryHeartRateMexicanHat.MHRdetect()
 plt.figure(1)
 plt.subplot(212)
 plt.plot(time, det1ODgaussian)
+plt.savefig('HR_detect_Fig_1.eps', format='eps')
 
 plt.figure(2)
 plt.subplot(221)
@@ -231,27 +230,31 @@ plt.title("Shannon")
 plt.subplot(224)
 plt.plot(detmexicanHat)
 plt.title("Mexican Hat")
+plt.savefig('HR_detect_Fig_2.eps', format='eps')
 
 plt.figure(3)
 plt.subplot(221)
 plt.plot(MHRGaussian)
 plt.title("Gaussian")
+plt.ylim(80, 110)
 
 plt.subplot(222)
 plt.plot(MHRGaussian1OD)
 plt.title("Gaussian 1st Order Derivative")
+plt.ylim(80, 110)
 
 plt.subplot(223)
 plt.plot(MHRShannon)
 plt.title("Shannon")
+plt.ylim(80, 110)
 
 plt.subplot(224)
 plt.plot(MHRMexicanHat)
 plt.title("Mexican Hat")
+plt.ylim(80, 110)
+plt.savefig('HR_detect_Fig_3.eps', format='eps')
 
 print("Execution finished!")
 
-end = timer()
-print(end - start)
-
+plt.tight_layout()
 plt.show()
