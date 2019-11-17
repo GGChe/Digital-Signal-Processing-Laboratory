@@ -7,7 +7,6 @@ Second part of the ECG filtering that consists of Heart Rate Detection by using 
 """
 import numpy as np
 import matplotlib.pylab as plt
-plt.rcParams.update({'font.size': 18})
 
 # Initialise the script
 dataFromECG = np.loadtxt("Gabriel_Brea_fast.dat")
@@ -76,6 +75,8 @@ class FIR_filter:
 Inherited from FIR_filter, it receives the class attributes, functions and methods from the superclass.
 This class calculates match filtering of an input signal.
 """
+
+
 class matched_filter(FIR_filter):
     def __init__(self, inputecg):
         self.inputECG = inputecg
@@ -95,29 +96,31 @@ class matched_filter(FIR_filter):
 
 This class has different methods for calculating different templates for the match filter.
 """
+
+
 class TemplateMaker:
     def __init__(self):
         self
 
     def mexicanhat(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = 0.9*(2 / np.sqrt(3 * 17) * np.pi ** (1 / 4)) * (1 - (t ** 2 / 17 ** 2)) \
+        mytemplate = 0.9 * (2 / np.sqrt(3 * 17) * np.pi ** (1 / 4)) * (1 - (t ** 2 / 17 ** 2)) \
                      * np.exp((-t ** 2) / (2 * 17 ** 2))
         return mytemplate
 
     def gaussian1OD(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = -3.25*t * np.exp((-t ** 2) / 50) / (125 * np.sqrt(2 * np.pi))
+        mytemplate = -3.25 * t * np.exp((-t ** 2) / 50) / (125 * np.sqrt(2 * np.pi))
         return mytemplate
 
     def gaussian(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = 3.75*np.exp((-t ** 2) / 50) / (5 * np.sqrt(2 * np.pi))
+        mytemplate = 3.75 * np.exp((-t ** 2) / 50) / (5 * np.sqrt(2 * np.pi))
         return mytemplate
 
     def shannon(self):
         t = np.linspace(-250, 250, 500)
-        mytemplate = 15*np.sqrt(100)*np.sinc(100*t)*np.exp(2*1j*t*np.pi*4)
+        mytemplate = 15 * np.sqrt(100) * np.sinc(100 * t) * np.exp(2 * 1j * t * np.pi * 4)
         return mytemplate
 
 

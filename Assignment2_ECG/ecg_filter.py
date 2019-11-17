@@ -10,7 +10,6 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
-plt.rcParams.update({'font.size': 16})
 
 # Initialise the script
 # Chosen the interval 10,000-40,000 that are 20 seconds due to fs = 1000.
@@ -36,7 +35,6 @@ plt.subplot(211)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(abs(ecg_fft[:int(len(ecg_fft) / 2)])))
 plt.title("Frequency Spectrum of (TOP) Original ECG signal; (BOTTOM) Filtered ECG signal")
 plt.ylabel('Magnitude (dB)')
-
 
 """
 FIR_Filter class that applies the FIR filter to an input signal.
@@ -130,4 +128,3 @@ plt.title("Filtered ECG Signal")
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude")
 plt.show()
-
