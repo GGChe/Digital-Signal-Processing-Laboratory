@@ -10,6 +10,7 @@ The total time of recording is was: 47 seconds
 
 import numpy as np
 import matplotlib.pylab as plt
+plt.rcParams.update({'font.size': 16})
 
 # Initialise the script
 # Chosen the interval 10,000-40,000 that are 20 seconds due to fs = 1000.
@@ -22,7 +23,7 @@ ntaps = 500
 # Plot the ECG prefiltered
 plt.figure(1)
 plt.subplot(211)
-plt.plot(time, myECG)
+plt.plot(myECG)
 plt.title("(TOP) ECG Pre-filtered; (BOTTOM) ECG Filtered")
 plt.ylabel('Amplitude')
 
