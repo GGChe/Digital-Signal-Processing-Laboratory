@@ -12,7 +12,6 @@ import numpy as np
 
 from pyfirmata2 import Arduino
 
-f = []
 PORT = Arduino.AUTODETECT
 
 # create a global QT application object
@@ -60,11 +59,10 @@ samplingRate = 100
 def callBack(data):
     # send the sample to the plotwindow
     qtPanningPlot1.addData(data)
-    ch1 = board.analog[0].read()
+    ch1 = board.analog[1].read()
     # 1st sample of 2nd channel might arrive later so need to check
     if ch1:
         qtPanningPlot2.addData(ch1)
-        f.append(ch1)
 
 
 # Get the Ardunio board.
@@ -85,7 +83,5 @@ app.exec_()
 
 # needs to be called to close the serial port
 board.exit()
-
-np.savetxt('test.txt', f, delimiter=' ')
 
 print("Finished")
