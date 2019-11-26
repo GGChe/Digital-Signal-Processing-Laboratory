@@ -4,9 +4,6 @@ import scipy.signal as signal
 
 data = np.loadtxt('IIR_pulse_read1.dat')
 
-samplingrate = 1000
-cutoff_frequency = 5
-
 fs = 100
 data_fft = np.fft.fft(data)
 f_axis = np.linspace(0, fs, len(data))  # Full spectrum frequency range
@@ -44,11 +41,11 @@ q = 10
 si = np.complex(-np.pi * f / q, np.pi * f * np.sqrt(1 / (q ** 2)))
 
 # Calculate Coefficients
-b,a=signal.butter(2,0.1*2)
+b, a = signal.butter(2, 0.1*2)
 b0 = b[0]
-b1=[1]
-a1=a[1]
-a2=a[2]
+b1 = [1]
+a1 = a[1]
+a2 = a[2]
 f = IIR_filter(b0, b1, a1, a2)
 
 plt.plot(f)
