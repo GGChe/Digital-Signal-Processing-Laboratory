@@ -19,7 +19,7 @@ plt.figure(2)
 plt.subplot(211)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20*np.log10(np.abs(fft_data[:int(len(fft_data)/2)])))
 
-# cutoffs
+# cutoffs   d
 f = (10/fs) * 2
 
 # scaling factor in bits
