@@ -29,7 +29,7 @@ class IIR_filter:
         self.a2 = _a[2]
         self.b0 = _b[0]
         self.b1 = _b[1]
-        self.b2 = _b[2]
+        self.b2 = 0
         # Delay Lines
         self.m_x1 = 0
         self.m_x2 = 0
@@ -78,11 +78,13 @@ class QtPanningPlot:
 n = 2
 
 # cutoff frequency
-fc = 15
-fn = (fc / fs)*2
+wc1 = 1
+wc2 = 15
+wc1n = (wc1/fs)*2
+wc2n = (wc2/fs)*2
 
 # Coefficients
-b, a = signal.butter(n, fn, 'low')
+b, a = signal.butter(1, [1,15], 'bandpass', analog=True)
 myFilter = IIR_filter(a, b)
 
 # Let's create two instances of plot windows
