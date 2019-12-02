@@ -1,6 +1,22 @@
 #!/usr/bin/python3
 """
-Plots channels zero and one in two different windows. Requires pyqtgraph.
+
+---------------------------------- Documentation ----------------------------------
+
+This script is a Digital Signal Processing of light-based pulsemeter device consisting of a photoresistor and a LED
+One finger is placed between the LED and the photoresistor and by light attenuation due to different blood pressures
+related to the heartbeat, we can read a periodic signal. There are some noises in the signal due to finger moving,
+noise due to the amplification, and others.
+
+The process of the script is simple:
+Read sensor -> Filter -> Plot
+
+For the filtering of the signal, an IIR filter was implemented in the class IIR:
+IIR(order,cutoff,filterType,design='butter',rp=1,rs=1,fs=0)
+
+This class calculate the IIR filter coefficients for a given filter type ( Butter, Cheby1 or Cheby2)
+and then, the class function "filter" does the filtering to a given value.
+---------------------------------------------------------------------------
 """
 
 import sys
@@ -20,13 +36,23 @@ app = QtGui.QApplication(sys.argv)
 # signals to all threads in endless loops that we'd like to run these
 running = True
 
+"""
+Constructor:
+    @:param order: Can be odd or even order as this class creates an IIR filter through the chain of second order filters and 
+    an extra first order at the end if odd order is required.
+    @:param cutoff: For Lowpass and Highpass filters only one cutoff frequency is required while for Bandpass and Bandstop
+    it is required an array of frequencies. The input values must be float or integer and the class will 
+    normalise them to the Nyquist frequency.
+    @:param filterType: lowpass, highpass, bandpass, bandstop
+    @:param design: butter, cheby1, cheby2.
+    @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
+    @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
+"""
 
-class IIR2Filter(object):
+class IIR(object):
 
-    def createCoeffs(self, order, cutoff, filterType, design='butter', rp=1, rs=1, fs=0):
+    def __init__(self, order, cutoff, filterType, design='butter', rp=1, rs=1):
 
-        self.coefficients = [0]
-        # cutoff frequencies need to be normalised to Nyquist
         for i in range(len(cutoff)):
             cutoff[i] = cutoff[i] / fs * 2
         if design == 'butter':
@@ -36,10 +62,6 @@ class IIR2Filter(object):
         elif design == 'cheby2':
             self.coefficients = signal.cheby2(order, rs, cutoff, filterType, output='sos')
 
-        return self.coefficients
-
-    def __init__(self, order, cutoff, filterType, design='butter', rp=1, rs=1):
-        self.coefficients = self.createCoeffs(order, cutoff, filterType, design, rp, rs, fs)
         self.acc_input = np.zeros(len(self.coefficients))
         self.acc_output = np.zeros(len(self.coefficients))
         self.buffer1 = np.zeros(len(self.coefficients))
@@ -51,19 +73,25 @@ class IIR2Filter(object):
         self.input = input
         self.output = 0
 
-        # In case that we need a filter with order more than 3, the filter is calculatd as
-        # product of successive filters.
+        # This loop creates  any order filter by concatenating second order filters.
+        # If it is needed a 8th order filter, the loop will be executed 4 times obtaining
+        # a chain of 4 2nd order filters.
         for i in range(len(self.coefficients)):
             self.FIRcoeff = self.coefficients[i][0:3]
             self.IIRcoeff = self.coefficients[i][3:6]
 
-            # Calculate accumulated input from the input and  the values coming as IIR Coeffs
+            # IIR Part of the filter:
+            # The accumulated input are the values of the IIR coefficients multiplied
+            # by the variables of the filter: the input and the delay lines.
             self.acc_input[i] = (self.input + self.buffer1[i]
-                                * -self.IIRcoeff[1] + self.buffer2[i] * -self.IIRcoeff[2])
+                                 * -self.IIRcoeff[1] + self.buffer2[i] * -self.IIRcoeff[2])
 
-            # Calculate accumulated input from the input and  the values coming as FIR Coeffs
+            # FIR Part of the filter:
+            # The accumulated output are the values of the FIR coefficients multiplied
+            # by the variables of the filter: the input and the delay lines.
+
             self.acc_output[i] = (self.acc_input[i] * self.FIRcoeff[0]
-                                    + self.buffer1[i] * self.FIRcoeff[1] + self.buffer2[i]
+                                  + self.buffer1[i] * self.FIRcoeff[1] + self.buffer2[i]
                                   * self.FIRcoeff[2])
 
             # Shifting the values on the delay line: acc_input->buffer1->buffer2
@@ -71,9 +99,8 @@ class IIR2Filter(object):
             self.buffer1[i] = self.acc_input[i]
             self.input = self.acc_output[i]
 
-            self.output = self.acc_output[i]
-
-            return self.output
+        self.output = self.acc_output[i]
+        return self.output
 
 
 class QtPanningPlot:
@@ -102,7 +129,7 @@ class QtPanningPlot:
         self.data.append(d)
 
 
-FilterMains = IIR2Filter(2, [1, 15], 'bandpass', design='butter', fs=100)
+myFilter = IIR(2, [1, 8], 'bandpass', design='butter')
 
 # Let's create two instances of plot windows
 qtPanningPlot1 = QtPanningPlot("Arduino 1st channel")
@@ -118,7 +145,7 @@ def callBack(data):
     ch1 = board.analog[1].read()
     # 1st sample of 2nd channel might arrive later so need to check
     if ch1:
-        qtPanningPlot2.addData(FilterMains.filter(ch1))
+        qtPanningPlot2.addData(myFilter.filter(ch1))
 
 
 # Get the Ardunio board.
