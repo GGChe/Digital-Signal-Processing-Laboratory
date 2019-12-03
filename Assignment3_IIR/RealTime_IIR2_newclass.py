@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 """
 
+Authors: Gabriel Galeote-Checa & Anton Saikia
+
+
 ---------------------------------- Documentation ----------------------------------
 
 This script is a Digital Signal Processing of light-based pulsemeter device consisting of a photoresistor and a LED
@@ -26,33 +29,38 @@ import numpy as np
 from pyfirmata2 import Arduino
 import scipy.signal as signal
 
+""" ---- Initialization of the script ------
+|
+|   fs : sampling frequency, defined for every application and limited by the system specifications.
+|   PORT : communication port, detected automatically so we don't have to care about the specific COM port.
+|   app : global QT application object for plotting. 
+|   running = signals to all threads in endless loops that we'd like to run these
+|
+"""
 fs = 100
-
 PORT = Arduino.AUTODETECT
-
-# create a global QT application object
 app = QtGui.QApplication(sys.argv)
-
-# signals to all threads in endless loops that we'd like to run these
 running = True
 
-"""
-Constructor:
-    @:param order: Can be odd or even order as this class creates an IIR filter through the chain of second order filters and 
-    an extra first order at the end if odd order is required.
-    @:param cutoff: For Lowpass and Highpass filters only one cutoff frequency is required while for Bandpass and Bandstop
-    it is required an array of frequencies. The input values must be float or integer and the class will 
-    normalise them to the Nyquist frequency.
-    @:param filterType: lowpass, highpass, bandpass, bandstop
-    @:param design: butter, cheby1, cheby2.
-    @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
-    @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
-"""
+
 
 class IIR(object):
+    """
+    Given the proper parameters, this class calculates a filter (Butterworth, Chebyshev1 or Chebyshev2) and process an
+    input value from the reading.
 
+    Attributes:
+        @:param order: Can be odd or even order as this class creates an IIR filter through the chain of second order filters and
+        an extra first order at the end if odd order is required.
+        @:param cutoff: For Lowpass and Highpass filters only one cutoff frequency is required while for Bandpass and Bandstop
+        it is required an array of frequencies. The input values must be float or integer and the class will
+        normalise them to the Nyquist frequency.
+        @:param filterType: lowpass, highpass, bandpass, bandstop
+        @:param design: butter, cheby1, cheby2.
+        @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
+        @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
+    """
     def __init__(self, order, cutoff, filterType, design='butter', rp=1, rs=1):
-
         for i in range(len(cutoff)):
             cutoff[i] = cutoff[i] / fs * 2
         if design == 'butter':
@@ -61,7 +69,6 @@ class IIR(object):
             self.coefficients = signal.cheby1(order, rp, cutoff, filterType, output='sos')
         elif design == 'cheby2':
             self.coefficients = signal.cheby2(order, rs, cutoff, filterType, output='sos')
-
         self.acc_input = np.zeros(len(self.coefficients))
         self.acc_output = np.zeros(len(self.coefficients))
         self.buffer1 = np.zeros(len(self.coefficients))
@@ -70,26 +77,38 @@ class IIR(object):
         self.output = 0
 
     def filter(self, input):
+        """
+        From the coefficients calculated in the constructor of the class, the filter is created as chains of IIR filters
+        to obtain any order IIR filter. This is important as if order 8 IIR filter is required, it can be calculated as
+        a chain of 4 2nd order IIR filters.
+        :param input: input value from the reading in real time to be processed.
+        :return: processed value.
+        """
         self.input = input
         self.output = 0
 
-        # This loop creates  any order filter by concatenating second order filters.
-        # If it is needed a 8th order filter, the loop will be executed 4 times obtaining
-        # a chain of 4 2nd order filters.
+        """ 
+        This loop creates  any order filter by concatenating second order filters.
+        If it is needed a 8th order filter, the loop will be executed 4 times obtaining
+        a chain of 4 2nd order filters.
+        """
         for i in range(len(self.coefficients)):
             self.FIRcoeff = self.coefficients[i][0:3]
             self.IIRcoeff = self.coefficients[i][3:6]
 
-            # IIR Part of the filter:
-            # The accumulated input are the values of the IIR coefficients multiplied
-            # by the variables of the filter: the input and the delay lines.
+            """
+            IIR Part of the filter:
+            The accumulated input are the values of the IIR coefficients multiplied
+            by the variables of the filter: the input and the delay lines.
+            """
             self.acc_input[i] = (self.input + self.buffer1[i]
                                  * -self.IIRcoeff[1] + self.buffer2[i] * -self.IIRcoeff[2])
 
-            # FIR Part of the filter:
-            # The accumulated output are the values of the FIR coefficients multiplied
-            # by the variables of the filter: the input and the delay lines.
-
+            """
+            FIR Part of the filter:
+            The accumulated output are the values of the FIR coefficients multiplied
+            by the variables of the filter: the input and the delay lines.
+            """
             self.acc_output[i] = (self.acc_input[i] * self.FIRcoeff[0]
                                   + self.buffer1[i] * self.FIRcoeff[1] + self.buffer2[i]
                                   * self.FIRcoeff[2])
