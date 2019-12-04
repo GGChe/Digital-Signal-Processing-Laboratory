@@ -129,7 +129,7 @@ class QtPanningPlot:
         self.win.setWindowTitle(title)
         self.plt = self.win.addPlot()
         self.plt.setYRange(-1, 1)
-        self.plt.setXRange(0, 500)
+        self.plt.setXRange(0, 600)
         self.curve = self.plt.plot()
         self.data = []
         self.timer = QtCore.QTimer()
@@ -148,11 +148,11 @@ class QtPanningPlot:
         self.data.append(d)
 
 
-myFilter = IIR(2, [1, 8], 'bandpass', design='butter')
+myFilter = IIR(2, [0.8, 4], 'bandpass', design='butter')
 
 # Let's create two instances of plot windows
-qtPanningPlot1 = QtPanningPlot("Arduino 1st channel")
-qtPanningPlot2 = QtPanningPlot("Arduino 2nd channel")
+qtPlot1 = QtPanningPlot("Arduino 1st channel")
+qtPlot2 = QtPanningPlot("Arduino 2nd channel")
 
 # sampling rate: 100Hz
 samplingRate = 100
@@ -160,14 +160,15 @@ samplingRate = 100
 # called for every new sample which has arrived from the Arduino
 def callBack(data):
     # send the sample to the plotwindow
-    qtPanningPlot1.addData(data)
+    qtPlot1.addData(data)
     ch1 = board.analog[1].read()
     # 1st sample of 2nd channel might arrive later so need to check
     if ch1:
-        qtPanningPlot2.addData(myFilter.filter(ch1))
+        filteredData = myFilter.filter(ch1)
+        qtPlot2.addData(filteredData*10)
 
 
-# Get the Ardunio board.
+# Get the Arduino board.
 board = Arduino(PORT)
 
 # Set the sampling rate in the Arduino
