@@ -140,13 +140,15 @@ class IIRFilter(object):
 
 
 cutoff = [0.8, 4]
-order = 6
+order = 2
 for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
 
 coeff = signal.butter(order, cutoff, 'bandpass', output='sos')
-myFilter = IIRFilter(coeff)
-#myFilter = IIR2Filter(coeff[0])
+if order > 1:
+    myFilter = IIRFilter(coeff)
+else:
+    myFilter = IIR2Filter(coeff[0])
 
 y = np.zeros(len(data))
 for i in range(len(data)):

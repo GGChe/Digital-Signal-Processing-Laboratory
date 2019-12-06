@@ -190,13 +190,15 @@ class QtPanningPlot:
 
 # Filter Calculations
 cutoff = [0.8, 4]
-order = 6
+order = 2
 for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
 
 coeff = signal.butter(order, cutoff, 'bandpass', output='sos')
-myFilter = IIRFilter(coeff)
-#myFilter = IIR2Filter(coeff[0])
+if order > 1:
+    myFilter = IIRFilter(coeff)
+else:
+    myFilter = IIR2Filter(coeff[0])
 
 # Let's create two instances of plot windows
 qtPlot1 = QtPanningPlot("Arduino 1st channel")
