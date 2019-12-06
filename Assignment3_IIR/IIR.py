@@ -92,7 +92,7 @@ class IIR2Filter(object):
         by the variables of the filter: the input and the delay lines.
         """
         self.acc_input = (self.input + self.buffer1
-                          * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
+                             * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
 
         """
         FIR Part of the filter:
@@ -100,8 +100,8 @@ class IIR2Filter(object):
         by the variables of the filter: the input and the delay lines.
         """
         self.acc_output = (self.acc_input * self.FIRcoeff[0]
-                           + self.buffer1 * self.FIRcoeff[1] + self.buffer2
-                           * self.FIRcoeff[2])
+                              + self.buffer1 * self.FIRcoeff[1] + self.buffer2
+                              * self.FIRcoeff[2])
 
         # Shifting the values on the delay line: acc_input->buffer1->buffer2
         self.buffer2 = self.buffer1
@@ -109,7 +109,6 @@ class IIR2Filter(object):
         self.input = self.acc_output
         self.output = self.acc_output
         return self.output
-
 
 class IIRFilter(object):
     """
@@ -136,6 +135,9 @@ class IIRFilter(object):
         self.buffer2 = np.zeros(len(self.coefficients))
         self.input = 0
         self.output = 0
+        self.my_IIRs = []
+        for i in range(len(self.coefficients)):
+            self.my_IIRs.append(IIR2Filter(self.coefficients[i]))
 
     def filter(self, input):
         """
@@ -153,33 +155,10 @@ class IIRFilter(object):
         If it is needed a 8th order filter, the loop will be executed 4 times obtaining
         a chain of 4 2nd order filters.
         """
-        for i in range(len(self.coefficients)):
-            self.FIRcoeff = self.coefficients[i][0:3]
-            self.IIRcoeff = self.coefficients[i][3:6]
+        self.output = self.my_IIRs[0].filter(input)
+        for i in range(1, len(self.coefficients)):
+            self.output = self.my_IIRs[i].filter(self.output)
 
-            """
-            IIR Part of the filter:
-            The accumulated input are the values of the IIR coefficients multiplied
-            by the variables of the filter: the input and the delay lines.
-            """
-            self.acc_input[i] = (self.input + self.buffer1[i]
-                                 * -self.IIRcoeff[1] + self.buffer2[i] * -self.IIRcoeff[2])
-
-            """
-            FIR Part of the filter:
-            The accumulated output are the values of the FIR coefficients multiplied
-            by the variables of the filter: the input and the delay lines.
-            """
-            self.acc_output[i] = (self.acc_input[i] * self.FIRcoeff[0]
-                                  + self.buffer1[i] * self.FIRcoeff[1] + self.buffer2[i]
-                                  * self.FIRcoeff[2])
-
-            # Shifting the values on the delay line: acc_input->buffer1->buffer2
-            self.buffer2[i] = self.buffer1[i]
-            self.buffer1[i] = self.acc_input[i]
-            self.input = self.acc_output[i]
-
-        self.output = self.acc_output[i]
         return self.output
 
 
@@ -211,12 +190,13 @@ class QtPanningPlot:
 
 # Filter Calculations
 cutoff = [0.8, 4]
-order = 2
+order = 6
 for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
 
-coefficients = signal.butter(order, cutoff, 'bandpass', output='sos')
-myFilter = IIRFilter(coefficients)
+coeff = signal.butter(order, cutoff, 'bandpass', output='sos')
+myFilter = IIRFilter(coeff)
+#myFilter = IIR2Filter(coeff[0])
 
 # Let's create two instances of plot windows
 qtPlot1 = QtPanningPlot("Arduino 1st channel")

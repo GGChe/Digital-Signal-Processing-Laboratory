@@ -118,7 +118,7 @@ class IIR(object):
             self.buffer1[i] = self.acc_input[i]
             self.input = self.acc_output[i]
 
-        self.output = self.acc_output[i]
+            self.output = self.acc_output[i]
         return self.output
 
 

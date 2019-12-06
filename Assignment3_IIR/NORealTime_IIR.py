@@ -112,6 +112,9 @@ class IIRFilter(object):
         self.buffer2 = np.zeros(len(self.coefficients))
         self.input = 0
         self.output = 0
+        self.my_IIRs = []
+        for i in range(len(self.coefficients)):
+            self.my_IIRs.append(IIR2Filter(self.coefficients[i]))
 
     def filter(self, input):
         """
@@ -129,37 +132,15 @@ class IIRFilter(object):
         If it is needed a 8th order filter, the loop will be executed 4 times obtaining
         a chain of 4 2nd order filters.
         """
-        for i in range(len(self.coefficients)):
-            
+        self.output = self.my_IIRs[0].filter(input)
+        for i in range(1, len(self.coefficients)):
+            self.output = self.my_IIRs[i].filter(self.output)
 
-            """
-            IIR Part of the filter:
-            The accumulated input are the values of the IIR coefficients multiplied
-            by the variables of the filter: the input and the delay lines.
-            """
-            self.acc_input[i] = (self.input + self.buffer1[i]
-                                 * -self.IIRcoeff[1] + self.buffer2[i] * -self.IIRcoeff[2])
-
-            """
-            FIR Part of the filter:
-            The accumulated output are the values of the FIR coefficients multiplied
-            by the variables of the filter: the input and the delay lines.
-            """
-            self.acc_output[i] = (self.acc_input[i] * self.FIRcoeff[0]
-                                  + self.buffer1[i] * self.FIRcoeff[1] + self.buffer2[i]
-                                  * self.FIRcoeff[2])
-
-            # Shifting the values on the delay line: acc_input->buffer1->buffer2
-            self.buffer2[i] = self.buffer1[i]
-            self.buffer1[i] = self.acc_input[i]
-            self.input = self.acc_output[i]
-
-        self.output = self.acc_output[i]
         return self.output
 
 
 cutoff = [0.8, 4]
-order = 1
+order = 6
 for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
 
