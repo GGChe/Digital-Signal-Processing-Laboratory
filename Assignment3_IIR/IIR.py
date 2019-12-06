@@ -1,25 +1,27 @@
 # !/usr/bin/python3
 """
-
 Authors: Gabriel Galeote-Checa & Anton Saikia
 
-
----------------------------------- Documentation ----------------------------------
-
-This script is a Digital Signal Processing of light-based pulsemeter device consisting of a photoresistor and a LED
+########################################################################################################################
+################################################## Documentation #######################################################
+########################################################################################################################
+This script is a digital signal processing of a light-based pulsemeter device consisting of a photoresistor and a LED.
 One finger is placed between the LED and the photoresistor and by light attenuation due to different blood pressures
-related to the heartbeat, we can read a periodic signal. There are some noises in the signal due to finger moving,
-noise due to the amplification, and others.
+related to the heartbeat, we can read a periodic signal.
 
 The process of the script is simple:
 Read sensor -> Filter -> Plot
 
 For the filtering of the signal, an IIR filter was implemented in the class IIR:
-IIR(order,cutoff,filterType,design='butter',rp=1,rs=1,fs=0)
 
-This class calculate the IIR filter coefficients for a given filter type ( Butter, Cheby1 or Cheby2)
-and then, the class function "filter" does the filtering to a given value.
----------------------------------------------------------------------------
+- IIR2Filter(coefficients) --> Creates a 2nd order IIR filter from a given coefficients.
+
+- IRRFilter(coefficients) --> Creates an IIR filter of any order as a chain of 2nd order IIR filters using the
+                            class IIR2filter.
+
+########################################################################################################################
+#################################################  Script  #############################################################
+########################################################################################################################
 """
 
 import sys
@@ -29,40 +31,40 @@ import numpy as np
 from pyfirmata2 import Arduino
 import scipy.signal as signal
 
-""" ---- Initialization of the script ------
-|
-|   fs : sampling frequency, defined for every application and limited by the system specifications.
-|   PORT : communication port, detected automatically so we don't have to care about the specific COM port.
-|   app : global QT application object for plotting. 
-|   running = signals to all threads in endless loops that we'd like to run these
-|
-"""
+########################################################################################################################
+#######################################  Initialization of the Script ##################################################
+########################################################################################################################
+##  fs : sampling frequency, defined for every application and limited by the system specifications.                  ##
+##  PORT : communication port, detected automatically so we don't have to care about the specific COM port.           ##
+##  app : global QT application object for plotting.                                                                  ##
+##   running = signals to all threads in endless loops that we'd like to run these                                    ##
+########################################################################################################################
+
 fs = 100
 PORT = Arduino.AUTODETECT
 app = QtGui.QApplication(sys.argv)
 running = True
 
 
-# ------------ FILTER SECTION -----------------
+########################################################################################################################
+#######################################  Initialization of the Script ##################################################
+########################################################################################################################
+
 class IIR2Filter(object):
     """
-    Given the proper parameters, this class calculates a filter (Butterworth, Chebyshev1 or Chebyshev2) and process an
-    input value from the reading.
+    given a set of coefficients for the IIR filter this class creates an object that keeps the variables needed for the
+    IIR filtering as well as creating the function "filter(x)" with filters the input data.
 
     Attributes:
-        @:param order: Can be odd or even order as this class creates an IIR filter through the chain of second order filters and
-        an extra first order at the end if odd order is required.
-        @:param cutoff: For Lowpass and Highpass filters only one cutoff frequency is required while for Bandpass and Bandstop
-        it is required an array of frequencies. The input values must be float or integer and the class will
-        normalise them to the Nyquist frequency.
-        @:param filterType: lowpass, highpass, bandpass, bandstop
-        @:param design: butter, cheby1, cheby2.
-        @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
-        @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
+        @:param coefficients: input coefficients of the IIR filter as an array of 6 elements where the first three
+        coefficients are for the FIR filter part of the IIR filter and the last three coefficients are for the IIR part
+        of the IIR filter.
     """
 
-    def __init__(self, mycoeff):
-        self.coefficients = mycoeff
+    def __init__(self, coefficients):
+        self.IIRcoeff = self.myCoefficients[3:6]
+        self.FIRcoeff = self.myCoefficients[0:3]
+        self.myCoefficients = coefficients
         self.acc_input = 0
         self.acc_output = 0
         self.buffer1 = 0
@@ -72,36 +74,29 @@ class IIR2Filter(object):
 
     def filter(self, input):
         """
-        :param input: input value from the reading in real time to be processed.
+        :param input: input value to be processed.
         :return: processed value.
         """
+
         self.input = input
         self.output = 0
 
-        """ 
-        This loop creates  any order filter by concatenating second order filters.
-        If it is needed a 8th order filter, the loop will be executed 4 times obtaining
-        a chain of 4 2nd order filters.
-        """
-        self.FIRcoeff = self.coefficients[0:3]
-        self.IIRcoeff = self.coefficients[3:6]
-
-        """
-        IIR Part of the filter:
-        The accumulated input are the values of the IIR coefficients multiplied
-        by the variables of the filter: the input and the delay lines.
-        """
+        ################################################################################################################
+        ## IIR Part of the filter:                                                                                    ##
+        ## The accumulated input are the values of the IIR coefficients multiplied                                    ##
+        ## by the variables of the filter: the input and the delay lines.                                             ##
+        ################################################################################################################
         self.acc_input = (self.input + self.buffer1
-                             * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
+                          * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
 
-        """
-        FIR Part of the filter:
-        The accumulated output are the values of the FIR coefficients multiplied
-        by the variables of the filter: the input and the delay lines.
-        """
+        ################################################################################################################
+        ## FIR Part of the filter:                                                                                    ##
+        ## The accumulated output are the values of the FIR coefficients multiplied                                   ##
+        ## by the variables of the filter: the input and the delay lines.                                             ##
+        ################################################################################################################
         self.acc_output = (self.acc_input * self.FIRcoeff[0]
-                              + self.buffer1 * self.FIRcoeff[1] + self.buffer2
-                              * self.FIRcoeff[2])
+                           + self.buffer1 * self.FIRcoeff[1] + self.buffer2
+                           * self.FIRcoeff[2])
 
         # Shifting the values on the delay line: acc_input->buffer1->buffer2
         self.buffer2 = self.buffer1
@@ -110,55 +105,47 @@ class IIR2Filter(object):
         self.output = self.acc_output
         return self.output
 
+
 class IIRFilter(object):
     """
-    Given the proper parameters, this class calculates a filter (Butterworth, Chebyshev1 or Chebyshev2) and process an
-    input value from the reading.
+    given a set of coefficients for the IIR filter this class creates an object that keeps the variables needed for the
+    IIR filtering as well as creating the function "filter(x)" with filters the input data.
 
     Attributes:
-        @:param order: Can be odd or even order as this class creates an IIR filter through the chain of second order filters and
-        an extra first order at the end if odd order is required.
-        @:param cutoff: For Lowpass and Highpass filters only one cutoff frequency is required while for Bandpass and Bandstop
-        it is required an array of frequencies. The input values must be float or integer and the class will
-        normalise them to the Nyquist frequency.
-        @:param filterType: lowpass, highpass, bandpass, bandstop
-        @:param design: butter, cheby1, cheby2.
-        @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
-        @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
+        @:param coefficients: input coefficients of the IIR filter as an array of n arrays where n is the order of the
+        filter. The array of coefficients is organised in blocks of 6 coefficients where the first three coefficients
+        are for the FIR filter part of the IIR filter and the last three coefficients are for the IIR part of the IIR
+        filter.
     """
 
     def __init__(self, mycoeff):
-        self.coefficients = mycoeff
-        self.acc_input = np.zeros(len(self.coefficients))
-        self.acc_output = np.zeros(len(self.coefficients))
-        self.buffer1 = np.zeros(len(self.coefficients))
-        self.buffer2 = np.zeros(len(self.coefficients))
+        self.myCoefficients = mycoeff
+        self.acc_input = np.zeros(len(self.myCoefficients))
+        self.acc_output = np.zeros(len(self.myCoefficients))
+        self.buffer1 = np.zeros(len(self.myCoefficients))
+        self.buffer2 = np.zeros(len(self.myCoefficients))
         self.input = 0
         self.output = 0
-        self.my_IIRs = []
-        for i in range(len(self.coefficients)):
-            self.my_IIRs.append(IIR2Filter(self.coefficients[i]))
+        self.myIIRs = []
+        ################################################################################################################
+        ##  An IIR filter can be calculated as a chain of 2nd order IIR filters. For that, the array myIIRs contains  ##
+        ##    a list of IIR2Filter classes initialised with the coefficients given.                                   ##
+        ################################################################################################################
+        for i in range(len(self.myCoefficients)):
+            self.myIIRs.append(IIR2Filter(self.myCoefficients[i]))
 
     def filter(self, input):
         """
-        From the coefficients calculated in the constructor of the class, the filter is created as chains of IIR filters
-        to obtain any order IIR filter. This is important as if order 8 IIR filter is required, it can be calculated as
-        a chain of 4 2nd order IIR filters.
+        Filter and input value with the IIR filter structure.
         :param input: input value from the reading in real time to be processed.
         :return: processed value.
         """
+
         self.input = input
         self.output = 0
-
-        """ 
-        This loop creates  any order filter by concatenating second order filters.
-        If it is needed a 8th order filter, the loop will be executed 4 times obtaining
-        a chain of 4 2nd order filters.
-        """
-        self.output = self.my_IIRs[0].filter(input)
-        for i in range(1, len(self.coefficients)):
-            self.output = self.my_IIRs[i].filter(self.output)
-
+        self.output = self.myIIRs[0].filter(input)
+        for i in range(1, len(self.myCoefficients)):
+            self.output = self.myIIRs[i].filter(self.output)
         return self.output
 
 
@@ -188,9 +175,22 @@ class QtPanningPlot:
         self.data.append(d)
 
 
-# Filter Calculations
+"""
+########################################################################################################################
+#############################################     MAIN     #############################################################
+########################################################################################################################
+#  Cutoff frequencies:                                                                                                 #
+#          a) wc1 = 0.8 Hz to remove DC components                                                                     #
+#          b) wc2 = 4 Hz cause the maximum heartrate is 220 bpm = 220/60 = 3.67 Hz                                     #
+#                                                                                                                      #
+# Order of the filter:                                                                                                 #    
+#           n = 2 for a chain of two 2nd order IIR filter as we are using 'sos' for second-order sections              #  
+#                                                                                                                      #  
+########################################################################################################################
+"""
 cutoff = [0.8, 4]
 order = 2
+
 for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
 

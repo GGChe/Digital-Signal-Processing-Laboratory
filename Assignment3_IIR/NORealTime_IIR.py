@@ -2,7 +2,15 @@ import numpy as np
 import matplotlib.pylab as plt
 import scipy.signal as signal
 
-# Initialization
+########################################################################################################################
+#######################################  Initialization of the Script ##################################################
+########################################################################################################################
+##  fs : sampling frequency, defined for every application and limited by the system specifications.                  ##
+##  PORT : communication port, detected automatically so we don't have to care about the specific COM port.           ##
+##  app : global QT application object for plotting.                                                                  ##
+##   running = signals to all threads in endless loops that we'd like to run these                                    ##
+########################################################################################################################
+
 data = np.loadtxt('IIR_pulse_read1.dat')
 fs = 100
 
