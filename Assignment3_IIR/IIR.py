@@ -1,4 +1,4 @@
-    #!/usr/bin/python3
+# !/usr/bin/python3
 """
 
 Authors: Gabriel Galeote-Checa & Anton Saikia
@@ -43,7 +43,7 @@ app = QtGui.QApplication(sys.argv)
 running = True
 
 
-
+# ------------ FILTER SECTION -----------------
 class IIR2Filter(object):
     """
     Given the proper parameters, this class calculates a filter (Butterworth, Chebyshev1 or Chebyshev2) and process an
@@ -60,20 +60,18 @@ class IIR2Filter(object):
         @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
         @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
     """
-    def __init__(self, coeff):
-        self.coefficients = coeff
-        self.acc_input = np.zeros(len(self.coefficients))
-        self.acc_output = np.zeros(len(self.coefficients))
-        self.buffer1 = np.zeros(len(self.coefficients))
-        self.buffer2 = np.zeros(len(self.coefficients))
+
+    def __init__(self, mycoeff):
+        self.coefficients = mycoeff
+        self.acc_input = 0
+        self.acc_output = 0
+        self.buffer1 = 0
+        self.buffer2 = 0
         self.input = 0
         self.output = 0
 
     def filter(self, input):
         """
-        From the coefficients calculated in the constructor of the class, the filter is created as chains of IIR filters
-        to obtain any order IIR filter. This is important as if order 8 IIR filter is required, it can be calculated as
-        a chain of 4 2nd order IIR filters.
         :param input: input value from the reading in real time to be processed.
         :return: processed value.
         """
@@ -85,33 +83,31 @@ class IIR2Filter(object):
         If it is needed a 8th order filter, the loop will be executed 4 times obtaining
         a chain of 4 2nd order filters.
         """
-        for i in range(len(self.coefficients)):
-            self.FIRcoeff = self.coefficients[i][0:3]
-            self.IIRcoeff = self.coefficients[i][3:6]
+        self.FIRcoeff = self.coefficients[0:3]
+        self.IIRcoeff = self.coefficients[3:6]
 
-            """
-            IIR Part of the filter:
-            The accumulated input are the values of the IIR coefficients multiplied
-            by the variables of the filter: the input and the delay lines.
-            """
-            self.acc_input[i] = (self.input + self.buffer1[i]
-                                 * -self.IIRcoeff[1] + self.buffer2[i] * -self.IIRcoeff[2])
+        """
+        IIR Part of the filter:
+        The accumulated input are the values of the IIR coefficients multiplied
+        by the variables of the filter: the input and the delay lines.
+        """
+        self.acc_input = (self.input + self.buffer1
+                          * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
 
-            """
-            FIR Part of the filter:
-            The accumulated output are the values of the FIR coefficients multiplied
-            by the variables of the filter: the input and the delay lines.
-            """
-            self.acc_output[i] = (self.acc_input[i] * self.FIRcoeff[0]
-                                  + self.buffer1[i] * self.FIRcoeff[1] + self.buffer2[i]
-                                  * self.FIRcoeff[2])
+        """
+        FIR Part of the filter:
+        The accumulated output are the values of the FIR coefficients multiplied
+        by the variables of the filter: the input and the delay lines.
+        """
+        self.acc_output = (self.acc_input * self.FIRcoeff[0]
+                           + self.buffer1 * self.FIRcoeff[1] + self.buffer2
+                           * self.FIRcoeff[2])
 
-            # Shifting the values on the delay line: acc_input->buffer1->buffer2
-            self.buffer2[i] = self.buffer1[i]
-            self.buffer1[i] = self.acc_input[i]
-            self.input = self.acc_output[i]
-
-        self.output = self.acc_output[i]
+        # Shifting the values on the delay line: acc_input->buffer1->buffer2
+        self.buffer2 = self.buffer1
+        self.buffer1 = self.acc_input
+        self.input = self.acc_output
+        self.output = self.acc_output
         return self.output
 
 
@@ -131,6 +127,7 @@ class IIRFilter(object):
         @:param rp: Only for cheby1, it defines the maximum allowed passband ripples in decibels.
         @:param rs: Only for cheby2, it defines the minimum required stopband attenuation in decibels.
     """
+
     def __init__(self, mycoeff):
         self.coefficients = mycoeff
         self.acc_input = np.zeros(len(self.coefficients))
@@ -185,6 +182,7 @@ class IIRFilter(object):
         self.output = self.acc_output[i]
         return self.output
 
+
 class QtPanningPlot:
 
     def __init__(self, title):
@@ -210,6 +208,7 @@ class QtPanningPlot:
     def addData(self, d):
         self.data.append(d)
 
+
 # Filter Calculations
 cutoff = [0.8, 4]
 order = 2
@@ -226,6 +225,7 @@ qtPlot2 = QtPanningPlot("Arduino 2nd channel")
 # sampling rate: 100Hz
 samplingRate = 100
 
+
 # called for every new sample which has arrived from the Arduino
 def callBack(data):
     # send the sample to the plotwindow
@@ -234,7 +234,7 @@ def callBack(data):
     # 1st sample of 2nd channel might arrive later so need to check
     if ch1:
         filteredData = myFilter.filter(ch1)
-        qtPlot2.addData(filteredData*10)
+        qtPlot2.addData(filteredData * 10)
 
 
 # Get the Arduino board.
