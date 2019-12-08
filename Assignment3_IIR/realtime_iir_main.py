@@ -4,9 +4,9 @@ Authors: Gabriel Galeote-Checa & Anton Saikia
 
 Documentation:
 
-This script is a digital signal processing of a light-based pulsemeter device consisting of a photoresistor and a LED.
-One finger is placed between the LED and the photoresistor and by light attenuation due to different blood pressures
-related to the heartbeat, we can read a periodic signal.
+This script is for the digital signal processing of a light-based pulsemeter device consisting of a photoresistor and an LED.
+A finger is placed between the LED and the photoresistor and by light attenuation due to different blood pressures
+related to the heartbeat, we can detect a periodic signal.
 
 The process of the script is simple:
 Read sensor -> Filter -> Plot
@@ -15,7 +15,7 @@ For the filtering of the signal, an IIR filter was implemented in the class IIR:
 
 - IIR2Filter(coefficients) --> Creates a 2nd order IIR filter from a given coefficients.
 
-- IRRFilter(coefficients) --> Creates an IIR filter of any order as a chain of 2nd order IIR filters using the
+- IIRFilter(coefficients) --> Creates an IIR filter of any order as a chain of 2nd order IIR filters using the
                             class IIR2filter.
 """
 
@@ -177,7 +177,7 @@ class QtPanningPlot:
 |  ----------------------------------------------------------------------  |
 |  Cutoff frequencies:                                                     |
 |          a) wc1 = 0.8 Hz to remove DC components                         |
-|          b) wc2 = 4 Hz cause the maximum heartrate is                    |
+|          b) wc2 = 4 Hz because the maximum heartrate is                    |
 |                220 bpm = 220/60 = 3.67 Hz                                |
 |                                                                          |
 | Order of the filter:                                                     |    
