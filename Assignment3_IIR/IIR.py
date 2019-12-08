@@ -2,9 +2,8 @@
 """
 Authors: Gabriel Galeote-Checa & Anton Saikia
 
-########################################################################################################################
-################################################## Documentation #######################################################
-########################################################################################################################
+Documentation:
+
 This script is a digital signal processing of a light-based pulsemeter device consisting of a photoresistor and a LED.
 One finger is placed between the LED and the photoresistor and by light attenuation due to different blood pressures
 related to the heartbeat, we can read a periodic signal.
@@ -18,11 +17,10 @@ For the filtering of the signal, an IIR filter was implemented in the class IIR:
 
 - IRRFilter(coefficients) --> Creates an IIR filter of any order as a chain of 2nd order IIR filters using the
                             class IIR2filter.
-
-########################################################################################################################
-#################################################  Script  #############################################################
-########################################################################################################################
 """
+
+
+# -----------------------------------------------  Script  -------------------------------------------------------------
 
 import sys
 import pyqtgraph as pg
@@ -31,8 +29,8 @@ import numpy as np
 from pyfirmata2 import Arduino
 import scipy.signal as signal
 
-########################################################################################################################
-#######################################  Initialization of the Script ##################################################
+
+# -------------------------------------  Initialization of the Script --------------------------------------------------
 ########################################################################################################################
 ##  fs : sampling frequency, defined for every application and limited by the system specifications.                  ##
 ##  PORT : communication port, detected automatically so we don't have to care about the specific COM port.           ##
@@ -44,11 +42,8 @@ fs = 100
 PORT = Arduino.AUTODETECT
 app = QtGui.QApplication(sys.argv)
 running = True
-
-
-########################################################################################################################
-#######################################  Initialization of the Script ##################################################
-########################################################################################################################
+board = Arduino(PORT)       # Get the Arduino board.
+board.samplingOn(1000 / fs) # Set the sampling rate in the Arduino
 
 class IIR2Filter(object):
     """
@@ -82,17 +77,17 @@ class IIR2Filter(object):
         self.output = 0
 
         ################################################################################################################
-        ## IIR Part of the filter:                                                                                    ##
-        ## The accumulated input are the values of the IIR coefficients multiplied                                    ##
-        ## by the variables of the filter: the input and the delay lines.                                             ##
+        #  IIR Part of the filter:                                                                                     #
+        #  The accumulated input are the values of the IIR coefficients multiplied                                     #
+        #  by the variables of the filter: the input and the delay lines.                                              #
         ################################################################################################################
         self.acc_input = (self.input + self.buffer1
                           * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
 
         ################################################################################################################
-        ## FIR Part of the filter:                                                                                    ##
-        ## The accumulated output are the values of the FIR coefficients multiplied                                   ##
-        ## by the variables of the filter: the input and the delay lines.                                             ##
+        #  FIR Part of the filter:                                                                                     #
+        #  The accumulated output are the values of the FIR coefficients multiplied                                    #
+        #  by the variables of the filter: the input and the delay lines.                                              #
         ################################################################################################################
         self.acc_output = (self.acc_input * self.FIRcoeff[0]
                            + self.buffer1 * self.FIRcoeff[1] + self.buffer2
@@ -176,18 +171,19 @@ class QtPanningPlot:
 
 
 """
-########################################################################################################################
-#############################################     MAIN     #############################################################
-########################################################################################################################
-#  Cutoff frequencies:                                                                                                 #
-#          a) wc1 = 0.8 Hz to remove DC components                                                                     #
-#          b) wc2 = 4 Hz cause the maximum heartrate is 220 bpm = 220/60 = 3.67 Hz                                     #
-#                                                                                                                      #
-# Order of the filter:                                                                                                 #    
-#           n = 2 for a chain of two 2nd order IIR filter as we are using 'sos' for second-order sections              #  
-#                                                                                                                      #  
-########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------     MAIN     -------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
+|  Cutoff frequencies:                                                                                                 |
+|          a) wc1 = 0.8 Hz to remove DC components                                                                     |
+|          b) wc2 = 4 Hz cause the maximum heartrate is 220 bpm = 220/60 = 3.67 Hz                                     |
+|                                                                                                                      |
+| Order of the filter:                                                                                                 |    
+|           n = 2 for a chain of two 2nd order IIR filter as we are using 'sos' for second-order sections              |  
+|                                                                                                                      |  
+------------------------------------------------------------------------------------------------------------------------
 """
+
 cutoff = [0.8, 4]
 order = 2
 
@@ -195,35 +191,25 @@ for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
 
 coeff = signal.butter(order, cutoff, 'bandpass', output='sos')
+
+# If the order of the filter is 1, is one IIR 2nd order filter otherwise, it is a chain of IIR filters.
 if order > 1:
     myFilter = IIRFilter(coeff)
 else:
     myFilter = IIR2Filter(coeff[0])
 
-# Let's create two instances of plot windows
+# Create two instances of Qt plots
 qtPlot1 = QtPanningPlot("Arduino 1st channel")
 qtPlot2 = QtPanningPlot("Arduino 2nd channel")
 
-# sampling rate: 100Hz
-samplingRate = 100
-
-
-# called for every new sample which has arrived from the Arduino
+# This function is called for every new sample which has arrived from the Arduino
 def callBack(data):
-    # send the sample to the plotwindow
     qtPlot1.addData(data)
     ch1 = board.analog[1].read()
-    # 1st sample of 2nd channel might arrive later so need to check
     if ch1:
         filteredData = myFilter.filter(ch1)
         qtPlot2.addData(filteredData * 10)
 
-
-# Get the Arduino board.
-board = Arduino(PORT)
-
-# Set the sampling rate in the Arduino
-board.samplingOn(1000 / samplingRate)
 
 # Register the callback which adds the data to the animated plot
 board.analog[0].register_callback(callBack)
@@ -232,10 +218,10 @@ board.analog[0].register_callback(callBack)
 board.analog[0].enable_reporting()
 board.analog[1].enable_reporting()
 
-# showing all the windows
+# Show all windows
 app.exec_()
 
-# needs to be called to close the serial port
+# Close the serial port
 board.exit()
 
-print("Finished")
+print("Execution Finished")
