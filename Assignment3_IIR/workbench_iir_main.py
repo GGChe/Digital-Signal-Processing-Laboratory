@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pylab as plt
 import scipy.signal as signal
-
+plt.rcParams.update({'font.size': 18})
 ########################################################################################################################
 #######################################  Initialization of the Script ##################################################
 ########################################################################################################################
@@ -11,7 +11,7 @@ import scipy.signal as signal
 ##   running = signals to all threads in endless loops that we'd like to run these                                    ##
 ########################################################################################################################
 
-data = np.loadtxt('IIR_pulse_read1.dat')
+data = np.loadtxt('test.dat')
 fs = 100
 
 # Time domain plot
@@ -19,14 +19,14 @@ plt.figure(1)
 plt.subplot(211)
 plt.plot(data)
 plt.title("Time domain representation of the signal")
-
+plt.ylabel("Magnitude")
 fft_data = np.fft.fft(data)
 f_axis = np.linspace(0, fs, len(data))
 
 plt.figure(2)
 plt.subplot(211)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(np.abs(fft_data[:int(len(fft_data) / 2)])))
-
+plt.ylabel("Magnitude (dB)")
 
 # ------------ FILTER SECTION -----------------
 class IIR2Filter(object):
@@ -165,10 +165,13 @@ for i in range(len(data)):
 plt.figure(1)
 plt.subplot(212)
 plt.plot(y)
+plt.xlabel("Time (s)")
+plt.ylabel("Magnitude")
 
 plt.figure(2)
 plt.subplot(212)
 fft_y = np.fft.fft(y)
 plt.plot(f_axis[:int(len(f_axis) / 2)], 20 * np.log10(np.abs(fft_y[:int(len(fft_y) / 2)])))
-
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Magnitude (dB)")
 plt.show()

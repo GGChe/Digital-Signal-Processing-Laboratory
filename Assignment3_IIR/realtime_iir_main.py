@@ -19,9 +19,6 @@ For the filtering of the signal, an IIR filter was implemented in the class IIR:
                             class IIR2filter.
 """
 
-
-# -----------------------------------------------  Script  -------------------------------------------------------------
-
 import sys
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
@@ -29,14 +26,15 @@ import numpy as np
 from pyfirmata2 import Arduino
 import scipy.signal as signal
 
+"""
+# -------------  Initialization of the Script -------------
 
-# -------------------------------------  Initialization of the Script --------------------------------------------------
-########################################################################################################################
-##  fs : sampling frequency, defined for every application and limited by the system specifications.                  ##
-##  PORT : communication port, detected automatically so we don't have to care about the specific COM port.           ##
-##  app : global QT application object for plotting.                                                                  ##
-##   running = signals to all threads in endless loops that we'd like to run these                                    ##
-########################################################################################################################
+    - fs : sampling frequency, defined for every application and limited by the system specifications.         
+    - PORT : communication port, detected automatically so we don't have to care about the specific COM port.   
+    - app : global QT application object for plotting.                                                        
+    - running = signals to all threads in endless loops that we'd like to run these                            
+
+"""
 
 fs = 100
 PORT = Arduino.AUTODETECT
@@ -76,19 +74,21 @@ class IIR2Filter(object):
         self.input = input
         self.output = 0
 
-        ################################################################################################################
-        #  IIR Part of the filter:                                                                                     #
-        #  The accumulated input are the values of the IIR coefficients multiplied                                     #
-        #  by the variables of the filter: the input and the delay lines.                                              #
-        ################################################################################################################
+        """
+        IIR Part of the filter:
+            The accumulated input are the values of the IIR coefficients multiplied by the variables of the filter: 
+            the input and the delay lines.
+        """
         self.acc_input = (self.input + self.buffer1
                           * -self.IIRcoeff[1] + self.buffer2 * -self.IIRcoeff[2])
 
-        ################################################################################################################
-        #  FIR Part of the filter:                                                                                     #
-        #  The accumulated output are the values of the FIR coefficients multiplied                                    #
-        #  by the variables of the filter: the input and the delay lines.                                              #
-        ################################################################################################################
+        """
+        FIR Part of the filter:     
+            The accumulated output are the values of the FIR coefficients multiplied by the variables of the filter: 
+            the input and the delay lines. 
+        
+        """
+
         self.acc_output = (self.acc_input * self.FIRcoeff[0]
                            + self.buffer1 * self.FIRcoeff[1] + self.buffer2
                            * self.FIRcoeff[2])
@@ -122,10 +122,11 @@ class IIRFilter(object):
         self.input = 0
         self.output = 0
         self.myIIRs = []
-        ################################################################################################################
-        ##  An IIR filter can be calculated as a chain of 2nd order IIR filters. For that, the array myIIRs contains  ##
-        ##    a list of IIR2Filter classes initialised with the coefficients given.                                   ##
-        ################################################################################################################
+
+        """
+        An IIR filter can be calculated as a chain of 2nd order IIR filters. For that, the array myIIRs contains
+        a list of IIR2Filter classes initialised with the coefficients given.
+        """
         for i in range(len(self.myCoefficients)):
             self.myIIRs.append(IIR2Filter(self.myCoefficients[i]))
 
@@ -171,17 +172,19 @@ class QtPanningPlot:
 
 
 """
-------------------------------------------------------------------------------------------------------------------------
----------------------------------------------     MAIN     -------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------
-|  Cutoff frequencies:                                                                                                 |
-|          a) wc1 = 0.8 Hz to remove DC components                                                                     |
-|          b) wc2 = 4 Hz cause the maximum heartrate is 220 bpm = 220/60 = 3.67 Hz                                     |
-|                                                                                                                      |
-| Order of the filter:                                                                                                 |    
-|           n = 2 for a chain of two 2nd order IIR filter as we are using 'sos' for second-order sections              |  
-|                                                                                                                      |  
-------------------------------------------------------------------------------------------------------------------------
+|  ----------------------------------------------------------------------  |
+|  ----------------------------     MAIN     ----------------------------  |
+|  ----------------------------------------------------------------------  |
+|  Cutoff frequencies:                                                     |
+|          a) wc1 = 0.8 Hz to remove DC components                         |
+|          b) wc2 = 4 Hz cause the maximum heartrate is                    |
+|                220 bpm = 220/60 = 3.67 Hz                                |
+|                                                                          |
+| Order of the filter:                                                     |    
+|           n = 2 for a chain of two 2nd order IIR filter as we            |
+|            are using 'sos' for second-order sections                     |  
+|                                                                          |  
+----------------------------------------------------------------------------
 """
 
 cutoff = [0.8, 4]
