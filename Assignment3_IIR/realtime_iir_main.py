@@ -188,7 +188,7 @@ class QtPanningPlot:
 """
 
 cutoff = [0.8, 4]
-order = 2
+order = 1
 
 for i in range(len(cutoff)):
     cutoff[i] = cutoff[i] / fs * 2
