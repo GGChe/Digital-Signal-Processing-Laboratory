@@ -55,9 +55,9 @@ class IIR2Filter(object):
     """
 
     def __init__(self, coefficients):
+        self.myCoefficients = coefficients
         self.IIRcoeff = self.myCoefficients[3:6]
         self.FIRcoeff = self.myCoefficients[0:3]
-        self.myCoefficients = coefficients
         self.acc_input = 0
         self.acc_output = 0
         self.buffer1 = 0
