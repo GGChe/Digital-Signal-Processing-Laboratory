@@ -5,6 +5,7 @@ This is the work repository for the projects of Digital Signal Processing carrie
 
 In this first project, a sentence is recorded with an standard microphone and slightly improved by just removing parts of the frequency spectrum. 
 
+![Test Image 1](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/Figure1.png)
 
 
 ## Second Project: Electrocardiogram (ECG) processing and heartbeat detection
