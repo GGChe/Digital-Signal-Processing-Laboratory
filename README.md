@@ -24,8 +24,7 @@ In this project an ECG signal was recorded and filtered by removing DC component
 
 A physical system was fabricated using a photoresistor to record the blood volume variations in a finger (any finger), also called plethismography. The signal is amplified with an OpAmp 101 times and sent to arduino where the signal is processed with a sampling frequency of 100 Hz. 
 
-
-
+![Figure5](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/IIRDesign_Fig_1.eps)
 
 
 
