@@ -5,13 +5,17 @@ This is the work repository for the projects of Digital Signal Processing carrie
 
 In this first project, a sentence is recorded with an standard microphone and slightly improved by just removing parts of the frequency spectrum. 
 
-![Test Image 1](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/Figure1.png)
+![Figure 1](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/Figure1.png)
 
 
 ## Second Project: Electrocardiogram (ECG) processing and heartbeat detection
 
 In this project an ECG signal was recorded and filtered by removing DC component and 50 Hz noise usinf an FIR filter. Besides, the R waves are detected using 4 different templantes in match filtering. Gaussians (zero and one order derivative), mexican wavelet analytically tuned waves were used as templates for detection.
 
+
+![Figure 2](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/Figure2.png)
+![Figure 3](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/Figure3.png)
+![Figure 4](https://github.com/GGChe/DigitalSignalProcessing/blob/master/Pictures/Figure4.png)
 
 
 
