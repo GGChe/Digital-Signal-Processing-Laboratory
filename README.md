@@ -1,5 +1,5 @@
 # Digital Signal Processing
-This is the work repository for the projects of Digital Signal Processing carried out at the University of Glasgow, Scotland, 2019.
+This is the laboratory repository for the projects of Digital Signal Processing carried out at the University of Glasgow, Scotland, 2019.
 
 Check the Youtube video here! 
 https://www.youtube.com/watch?v=2GbPQE1FDxk&feature=youtu.be
